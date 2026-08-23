@@ -5,7 +5,7 @@ import { z } from 'zod';
 /**
  * サーバ専用の環境変数（設計 §22）。
  * このモジュールは server-only。client bundle から import しない。
- * client へ公開される接頭辞つきの環境変数は定義しない（CLAUDE.md 禁止事項）。
+ * client 公開用の接頭辞つき環境変数は定義しない。理由と規約は .env.example の冒頭に書いてある。
  */
 
 /** process.env と同じ形。test からは任意の record を渡せる */

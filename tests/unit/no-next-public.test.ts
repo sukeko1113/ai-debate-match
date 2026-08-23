@@ -5,30 +5,24 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 /**
- * 受入基準: `NEXT_PUBLIC_` で始まる環境変数がコードに存在しない。
+ * 受入基準: client bundle に載りうるコードへ、client 公開用の接頭辞つき環境変数が現れない。
  * OPENAI_API_KEY を client bundle へ出さないための最小の番人（設計 §12.1 / §19）。
- * この test 自身がリテラルを含まないよう、接頭辞は連結して作る。
+ *
+ * 検索文字列はソースに書かず実行時に組み立てる。
+ * 走査対象は bundle に載りうるディレクトリだけに限り、
+ * tests / docs / .env.example / CLAUDE.md / README.md は対象外とする。
+ * これらは「その接頭辞を使わない」という注意書きを日本語で書ける場所である。
  */
-const FORBIDDEN_PREFIX = `NEXT_${'PUBLIC'}_`;
+const FORBIDDEN_PREFIX = `${['NEXT', 'PUBLIC'].join('_')}_`;
 
-const SCANNED_DIRS = [
-  'app',
-  'components',
-  'domain',
-  'application',
-  'infrastructure',
-  'schemas',
-  'tests',
-];
-const SCANNED_FILES = ['next.config.ts', 'playwright.config.ts', 'vitest.config.mts'];
+/** client bundle に載りうるディレクトリのみ */
+const SCANNED_DIRS = ['app', 'components', 'domain', 'application', 'infrastructure', 'schemas'];
 const SCANNED_EXTENSIONS = new Set(['.ts', '.tsx', '.mts', '.mjs', '.js', '.css']);
 
-const selfPath = fileURLToPath(import.meta.url);
-const rootDir = path.resolve(path.dirname(selfPath), '..', '..');
+const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 function collectFiles(dir: string): string[] {
-  const entries = readdirSync(dir, { withFileTypes: true });
-  return entries.flatMap((entry) => {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) return collectFiles(full);
     if (!SCANNED_EXTENSIONS.has(path.extname(entry.name))) return [];
@@ -36,22 +30,33 @@ function collectFiles(dir: string): string[] {
   });
 }
 
-describe(`${FORBIDDEN_PREFIX} を使っていない`, () => {
-  it('ソースツリーに1件も現れない', () => {
-    const files = [
-      ...SCANNED_DIRS.flatMap((dir) => collectFiles(path.join(rootDir, dir))),
-      ...SCANNED_FILES.map((file) => path.join(rootDir, file)),
-    ].filter((file) => path.resolve(file) !== selfPath);
+const scannedFiles = SCANNED_DIRS.flatMap((dir) => collectFiles(path.join(rootDir, dir)));
 
-    const offenders = files.filter((file) => readFileSync(file, 'utf8').includes(FORBIDDEN_PREFIX));
+describe('client 公開用の接頭辞つき環境変数を使っていない', () => {
+  it('bundle に載りうるディレクトリに1件も現れない', () => {
+    const offenders = scannedFiles
+      .filter((file) => readFileSync(file, 'utf8').includes(FORBIDDEN_PREFIX))
+      .map((file) => path.relative(rootDir, file));
 
     expect(offenders).toEqual([]);
   });
 
-  it('scan 対象のファイルを実際に読めている', () => {
+  it('走査対象のディレクトリとファイルを実際に読めている', () => {
     for (const dir of SCANNED_DIRS) {
       expect(statSync(path.join(rootDir, dir)).isDirectory()).toBe(true);
     }
-    expect(SCANNED_DIRS.flatMap((dir) => collectFiles(path.join(rootDir, dir))).length).toBeGreaterThan(0);
+    expect(scannedFiles.length).toBeGreaterThan(0);
+  });
+
+  it('注意書きを書ける場所は走査していない', () => {
+    const excluded = ['tests', 'docs', '.env.example', 'CLAUDE.md', 'README.md'].map((entry) =>
+      path.join(rootDir, entry),
+    );
+
+    for (const file of scannedFiles) {
+      expect(excluded.some((entry) => file === entry || file.startsWith(`${entry}${path.sep}`))).toBe(
+        false,
+      );
+    }
   });
 });

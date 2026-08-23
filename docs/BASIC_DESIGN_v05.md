@@ -177,7 +177,7 @@
 
 ### 6.4 タイマー
 
-本番表示は rule set の seconds を使う。E2Eで42分を待つことはしない。`CLOCK_MODE=realtime|manual` をサーバ設定とし、production build では realtime 固定、test では manual advance を許可する。人間は早期提出でき、AIは生成完了時に早期終了する。
+本番表示は rule set の seconds を使う。E2Eで42分を待つことはしない。`CLOCK_MODE=realtime|manual` をサーバ設定とし、デプロイ環境（Vercel等）では realtime に固定し、ローカルと CI では manual advance を許可する。判定は VERCEL などのデプロイ環境変数で行い、NODE_ENV=production では行わない。E2E は production build に対して実行するため、build かどうかで判定すると E10 が実行できなくなる。人間は早期提出でき、AIは生成完了時に早期終了する。
 
 ## 7. 質疑（CX）の実行モデル
 
@@ -813,7 +813,7 @@ pnpm build
 | OPENAI_API_KEY | （空） | AI_PROVIDER=openai のときのみ使用 |
 | OPENAI_TEXT_MODEL | （空） | 未設定ならMockへ戻す |
 | PERSISTENCE_PROVIDER | memory | memory ／ postgres |
-| CLOCK_MODE | realtime | realtime ／ manual（testのみ。production buildでは不可） |
+| CLOCK_MODE | realtime | realtime ／ manual（manual はローカルと CI のみ。デプロイ環境では realtime に固定） |
 | CX_EXCHANGES_PER_SECTION | 3 | rule setの値を上書きする開発用 |
 | AI_RUN_TIMEOUT_MS | 30000 | AI 1回あたりのタイムアウト |
 | MAX_AI_RUNS_PER_MATCH | 40 | 成功runの上限 |

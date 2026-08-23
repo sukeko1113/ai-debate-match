@@ -1,0 +1,54 @@
+{
+  "code": "fixture_motion_ja",
+  "isSeed": true,
+  "textJa": "日本は、高校の部活動を地域のクラブへ全面的に移行すべきである。是か非か。",
+  "definitionJa": "「全面的に移行する」とは、学校が運営主体となる部活動を廃止し、指導・運営・費用負担を地域のスポーツクラブおよび文化団体へ移すことを指す。移行の完了時期は制度導入から5年以内とする。",
+  "noArgumentCxQuestions": [
+    "立論が提出されていませんが、この論題に賛成する理由を一つ挙げてください。",
+    "",
+    "現状のどこに問題があると考えていますか。"
+  ],
+  "_evidenceNote": "以下は動作確認用のダミーカードである。実在の出典ではない。授業・実証で使う前に、公刊物・学術論文・公的報告に基づく実カードへ必ず差し替えること。demoOnly=true のカードは verification_status が unverified のまま保存される。",
+  "seedEvidenceCards": [
+    {
+      "id": "ev_001",
+      "side": "affirmative",
+      "demoOnly": true,
+      "title": "【デモ用ダミー】生徒の学習時間に関する調査",
+      "sourceLabel": "（デモ用ダミー資料・実在しません）",
+      "publishedOn": "2025-04",
+      "quote": "これは動作確認用のダミー引用です。実在の出典ではありません。実データに差し替えてください。",
+      "verificationStatus": "unverified"
+    },
+    {
+      "id": "ev_002",
+      "side": "affirmative",
+      "demoOnly": true,
+      "title": "【デモ用ダミー】教員の時間外業務に関する報告",
+      "sourceLabel": "（デモ用ダミー資料・実在しません）",
+      "publishedOn": "2025-06",
+      "quote": "これは動作確認用のダミー引用です。実在の出典ではありません。実データに差し替えてください。",
+      "verificationStatus": "unverified"
+    },
+    {
+      "id": "ev_003",
+      "side": "negative",
+      "demoOnly": true,
+      "title": "【デモ用ダミー】地域クラブの受け皿に関する調査",
+      "sourceLabel": "（デモ用ダミー資料・実在しません）",
+      "publishedOn": "2025-03",
+      "quote": "これは動作確認用のダミー引用です。実在の出典ではありません。実データに差し替えてください。",
+      "verificationStatus": "unverified"
+    },
+    {
+      "id": "ev_004",
+      "side": "negative",
+      "demoOnly": true,
+      "title": "【デモ用ダミー】家計の費用負担に関する報告",
+      "sourceLabel": "（デモ用ダミー資料・実在しません）",
+      "publishedOn": "2025-05",
+      "quote": "これは動作確認用のダミー引用です。実在の出典ではありません。実データに差し替えてください。",
+      "verificationStatus": "unverified"
+    }
+  ]
+}

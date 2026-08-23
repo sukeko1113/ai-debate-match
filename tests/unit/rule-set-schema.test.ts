@@ -80,6 +80,11 @@ const BROKEN_FIXTURES: ReadonlyArray<{ file: string; reason: string; expected: R
     expected: /index は 0 から連番でなければならない/,
   },
   {
+    file: 'duplicate-key.json',
+    reason: 'slots[].key が重複している',
+    expected: /key が重複している。key=affirmative_defense/,
+  },
+  {
     file: 'cx-exchanges-zero.json',
     reason: 'cxExchangesPerSection が 0',
     expected: /at constraints\.cxExchangesPerSection/,

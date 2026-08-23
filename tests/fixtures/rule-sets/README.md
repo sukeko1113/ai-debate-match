@@ -16,6 +16,7 @@
 | `speech-seat-duplicate.json` | 主スピーチで同じ席が2回登場する |
 | `attack-with-respondent.json` | `kind=attack` なのに `respondentSeat` が入っている |
 | `index-gap.json` | `index` に欠番がある |
+| `duplicate-key.json` | `slots[].key` が重複している |
 | `cx-exchanges-zero.json` | `cxExchangesPerSection` が 0 |
 
 1件の欠陥が複数の条件に触れることがある（例: セクションを1件減らすと秒数の合計も合わなくなる）。

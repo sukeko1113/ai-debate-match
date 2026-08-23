@@ -34,3 +34,14 @@ export {
   type RuleSetConstraints,
   type RuleSlot,
 } from './rule-set';
+
+export {
+  MotionValidationError,
+  motionSchema,
+  parseMotion,
+  safeParseMotion,
+  seedEvidenceCardSchema,
+  type Motion,
+  type ParseMotionOptions,
+  type SeedEvidenceCard,
+} from './motion';

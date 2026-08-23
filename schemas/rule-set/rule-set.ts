@@ -77,6 +77,28 @@ function checkIndexSequence(slots: readonly RuleSlot[], ctx: z.RefinementCtx): v
   });
 }
 
+/**
+ * key が rule set 内で一意であること。
+ *
+ * key は設計 §10.1 の固定質問を引くときや、テストがスロットを名指しするときの識別子である。
+ * 重複していると、別のスロットを掴んでも気づけない。
+ */
+function checkKeyUniqueness(slots: readonly RuleSlot[], ctx: z.RefinementCtx): void {
+  const seen = new Map<string, number>();
+  slots.forEach((slot, position) => {
+    const first = seen.get(slot.key);
+    if (first !== undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['slots', position, 'key'],
+        message: `key が重複している。key=${slot.key} は配列 ${first} 番目でも使われている（index=${slot.index}）`,
+      });
+      return;
+    }
+    seen.set(slot.key, position);
+  });
+}
+
 /** 競技セクションが 1〜12 でちょうど12件、重複なしであること（設計 §6.1） */
 function checkCompetitionSections(slots: readonly RuleSlot[], ctx: z.RefinementCtx): void {
   const competition = [...slots.entries()].filter(([, slot]) => slot.kind !== 'prep');
@@ -247,6 +269,7 @@ function checkSeconds(
 
 export const ruleSetSchema = ruleSetShapeSchema.superRefine((ruleSet, ctx) => {
   checkIndexSequence(ruleSet.slots, ctx);
+  checkKeyUniqueness(ruleSet.slots, ctx);
   checkCompetitionSections(ruleSet.slots, ctx);
   checkPrepSlots(ruleSet.slots, ctx);
   checkMainSpeeches(ruleSet.slots, ctx);

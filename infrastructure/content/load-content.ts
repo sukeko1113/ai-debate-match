@@ -3,13 +3,17 @@ import 'server-only';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
+import { parseMotion, type Motion } from '@/schemas/motion';
+import { parseRuleSet, type RuleSet } from '@/schemas/rule-set';
+
 /**
  * 契約ファイル（設計 付録A / §12.2）の読み込み。
  *
  * - `content/` の JSON はコードから書き換えない。読むだけ。
- * - Phase 1 P1 では **バリデーションを行わない**。
- *   rule set / motion の Zod 検証は P2（`schemas/rule-set/`）で追加する。
- *   そのため戻り値は `unknown` のままにしてある。
+ * - rule set と motion は読み込み時に必ず検証する（設計 §6.1 / §10.1）。
+ *   壊れた契約ファイルをそのまま下流へ渡さない。検証に失敗した場合は
+ *   `RuleSetValidationError` / `MotionValidationError` が、
+ *   どの項目のどの条件で落ちたかを持って投げられる。
  * - 引数はファイル名（拡張子なし）である。motion の `code` はファイル名と一致しない
  *   （`demo-motion-ja.json` の code は `demo_bukatsu_ja`）。
  */
@@ -28,12 +32,16 @@ function readContentJson(subDir: string, fileName: string): unknown {
   return JSON.parse(raw) as unknown;
 }
 
-/** `content/rule-sets/<fileName>.json` を読む */
-export function loadRuleSetJson(fileName: string = DEFAULT_RULE_SET_FILE): unknown {
-  return readContentJson('rule-sets', fileName);
+/** `content/rule-sets/<fileName>.json` を読み、検証済みの rule set を返す */
+export function loadRuleSet(fileName: string = DEFAULT_RULE_SET_FILE): RuleSet {
+  return parseRuleSet(readContentJson('rule-sets', fileName), {
+    source: `content/rule-sets/${fileName}.json`,
+  });
 }
 
-/** `content/motions/<fileName>.json` を読む */
-export function loadMotionJson(fileName: string = DEFAULT_MOTION_FILE): unknown {
-  return readContentJson('motions', fileName);
+/** `content/motions/<fileName>.json` を読み、検証済みの motion を返す */
+export function loadMotion(fileName: string = DEFAULT_MOTION_FILE): Motion {
+  return parseMotion(readContentJson('motions', fileName), {
+    source: `content/motions/${fileName}.json`,
+  });
 }

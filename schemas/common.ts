@@ -35,3 +35,20 @@ export const matchStatusSchema = z.enum([
   'aborted_no_content',
 ]);
 export type MatchStatus = z.infer<typeof matchStatusSchema>;
+
+/** 席の陣営。A=肯定側 / N=否定側（設計 §6.2） */
+export const sideSchema = z.enum(['affirmative', 'negative']);
+export type Side = z.infer<typeof sideSchema>;
+
+/** 席から陣営を引く。席の接頭辞だけで決まる（設計 §6.2） */
+export function seatSide(seat: Seat): Side {
+  return seat.startsWith('A') ? 'affirmative' : 'negative';
+}
+
+/** CXスロット内の副状態（設計 §7） */
+export const cxPhaseSchema = z.enum(['question', 'answer']);
+export type CxPhase = z.infer<typeof cxPhaseSchema>;
+
+/** 席の担当者種別（設計 付録B） */
+export const occupantTypeSchema = z.enum(['human', 'ai']);
+export type OccupantType = z.infer<typeof occupantTypeSchema>;

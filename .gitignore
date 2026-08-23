@@ -1,0 +1,48 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+.pnpm-store/
+
+# next.js
+.next/
+out/
+build/
+dist/
+
+# testing
+coverage/
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+playwright/.cache/
+
+# env — 実キーは絶対にコミットしない
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# supabase
+.branches/
+.temp/
+
+# misc
+.DS_Store
+*.pem
+.vercel
+.turbo
+*.tsbuildinfo
+next-env.d.ts
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# editor
+.idea/
+.vscode/*
+!.vscode/extensions.json

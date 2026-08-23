@@ -1,0 +1,39 @@
+{
+  "code": "fixture_valid_42_v1",
+  "version": 1,
+  "status": "verified_public_rule_source",
+  "sourceTitle": "テスト用の正常系 rule set（第20回ルールと同じ形）",
+  "sourceUrl": "https://example.test/fixture-rule-source",
+  "sourceCheckedOn": "2026-08-23",
+  "declaredTotalSeconds": 2520,
+  "languageMode": "ja",
+  "constraints": {
+    "maxAdvantages": 2,
+    "maxDisadvantages": 2,
+    "minArgumentsPerConstructive": 1,
+    "cxExchangesPerSection": 0,
+    "allowNewArgumentsAfterConstructive": false,
+    "allowNewEvidenceInDefenseForExistingArgument": true,
+    "allowComparisonEvidenceInSummary": true,
+    "requireBothSidesForSummaryComparisonEvidence": true
+  },
+  "slots": [
+    { "index": 0, "key": "affirmative_constructive", "sectionNo": 1, "kind": "constructive", "actorSeat": "A1", "respondentSeat": null, "seconds": 240 },
+    { "index": 1, "key": "prep_after_aff_constructive", "sectionNo": null, "kind": "prep", "actorSeat": null, "respondentSeat": null, "seconds": 60 },
+    { "index": 2, "key": "negative_questions_aff_constructive", "sectionNo": 2, "kind": "cx", "actorSeat": "N4", "respondentSeat": "A1", "seconds": 120 },
+    { "index": 3, "key": "negative_constructive", "sectionNo": 3, "kind": "constructive", "actorSeat": "N1", "respondentSeat": null, "seconds": 240 },
+    { "index": 4, "key": "prep_after_neg_constructive", "sectionNo": null, "kind": "prep", "actorSeat": null, "respondentSeat": null, "seconds": 60 },
+    { "index": 5, "key": "affirmative_questions_neg_constructive", "sectionNo": 4, "kind": "cx", "actorSeat": "A4", "respondentSeat": "N1", "seconds": 120 },
+    { "index": 6, "key": "prep_before_attacks", "sectionNo": null, "kind": "prep", "actorSeat": null, "respondentSeat": null, "seconds": 120 },
+    { "index": 7, "key": "negative_attack", "sectionNo": 5, "kind": "attack", "actorSeat": "N2", "respondentSeat": null, "seconds": 180 },
+    { "index": 8, "key": "affirmative_questions_neg_attack", "sectionNo": 6, "kind": "cx", "actorSeat": "A3", "respondentSeat": "N2", "seconds": 120 },
+    { "index": 9, "key": "affirmative_attack", "sectionNo": 7, "kind": "attack", "actorSeat": "A2", "respondentSeat": null, "seconds": 180 },
+    { "index": 10, "key": "negative_questions_aff_attack", "sectionNo": 8, "kind": "cx", "actorSeat": "N3", "respondentSeat": "A2", "seconds": 120 },
+    { "index": 11, "key": "prep_before_defenses", "sectionNo": null, "kind": "prep", "actorSeat": null, "respondentSeat": null, "seconds": 120 },
+    { "index": 12, "key": "affirmative_defense", "sectionNo": 9, "kind": "defense", "actorSeat": "A3", "respondentSeat": null, "seconds": 180 },
+    { "index": 13, "key": "negative_defense", "sectionNo": 10, "kind": "defense", "actorSeat": "N3", "respondentSeat": null, "seconds": 180 },
+    { "index": 14, "key": "prep_before_summaries", "sectionNo": null, "kind": "prep", "actorSeat": null, "respondentSeat": null, "seconds": 120 },
+    { "index": 15, "key": "affirmative_summary", "sectionNo": 11, "kind": "summary", "actorSeat": "A4", "respondentSeat": null, "seconds": 180 },
+    { "index": 16, "key": "negative_summary", "sectionNo": 12, "kind": "summary", "actorSeat": "N4", "respondentSeat": null, "seconds": 180 }
+  ]
+}

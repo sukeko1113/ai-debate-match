@@ -823,7 +823,7 @@ pnpm build
 
 > **起動安全性**
 >
-> `OPENAI_API_KEY` が存在しても `AI_PROVIDER=openai` でなければ外部呼出ししない。CIは必ず `AI_PROVIDER=mock`。`CLOCK_MODE=manual` は production build では使用できない。
+> `OPENAI_API_KEY` が存在しても `AI_PROVIDER=openai` でなければ外部呼出ししない。CIは必ず `AI_PROVIDER=mock`。`CLOCK_MODE=manual` はデプロイ環境では使用できない。
 >
 
 ## 23. Phase 2 へ進む条件

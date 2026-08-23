@@ -1,0 +1,39 @@
+import 'server-only';
+
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+
+/**
+ * 契約ファイル（設計 付録A / §12.2）の読み込み。
+ *
+ * - `content/` の JSON はコードから書き換えない。読むだけ。
+ * - Phase 1 P1 では **バリデーションを行わない**。
+ *   rule set / motion の Zod 検証は P2（`schemas/rule-set/`）で追加する。
+ *   そのため戻り値は `unknown` のままにしてある。
+ * - 引数はファイル名（拡張子なし）である。motion の `code` はファイル名と一致しない
+ *   （`demo-motion-ja.json` の code は `demo_bukatsu_ja`）。
+ */
+
+export const DEFAULT_RULE_SET_FILE = 'henda_20th_2025_42_v1';
+export const DEFAULT_MOTION_FILE = 'demo-motion-ja';
+
+const CONTENT_DIR = path.join(process.cwd(), 'content');
+const FILE_NAME_PATTERN = /^[A-Za-z0-9_-]+$/;
+
+function readContentJson(subDir: string, fileName: string): unknown {
+  if (!FILE_NAME_PATTERN.test(fileName)) {
+    throw new Error(`契約ファイル名が不正です: ${fileName}`);
+  }
+  const raw = readFileSync(path.join(CONTENT_DIR, subDir, `${fileName}.json`), 'utf8');
+  return JSON.parse(raw) as unknown;
+}
+
+/** `content/rule-sets/<fileName>.json` を読む */
+export function loadRuleSetJson(fileName: string = DEFAULT_RULE_SET_FILE): unknown {
+  return readContentJson('rule-sets', fileName);
+}
+
+/** `content/motions/<fileName>.json` を読む */
+export function loadMotionJson(fileName: string = DEFAULT_MOTION_FILE): unknown {
+  return readContentJson('motions', fileName);
+}

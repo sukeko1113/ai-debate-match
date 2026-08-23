@@ -392,6 +392,8 @@ domain/{rules,match,cx,arguments,fallback,scoring}/
 application/{create-match,submit-constructive,run-slot,run-cx-turn,advance-match,judge-match}/
 infrastructure/ai/{provider,mock-provider,openai-text-provider}/
 infrastructure/repositories/{memory,postgres}/
+infrastructure/config/                       # 環境変数（server-only）
+infrastructure/content/                      # rule set / motion の読み込み（server-only）
 schemas/{rule-set,api,human-input,ai-output}/
 content/rule-sets/henda_20th_2025_42_v1.json
 content/motions/demo-motion-ja.json          # no_argument_cx_questions を含む

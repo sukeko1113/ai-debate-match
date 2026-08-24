@@ -80,11 +80,16 @@ export {
 
 export {
   buildAttackOutputSchema,
+  buildCxAnswerOutputSchema,
+  buildCxQuestionOutputSchema,
   buildDefenseOutputSchema,
   buildSummaryOutputSchema,
   referenceArray,
   referenceEnum,
+  endsWithQuestionMark,
   type AttackOutput,
+  type CxAnswerOutput,
+  type CxQuestionOutput,
   type DefenseOutput,
   type SummaryOutput,
 } from './ai-output';

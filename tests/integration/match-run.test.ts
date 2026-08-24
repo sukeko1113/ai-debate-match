@@ -126,6 +126,7 @@ async function saveDummyOutput(
         questionText: `ダミー質問 s${slot.sectionNo} t${turnIndex}`,
         answerText: null,
         targetArgumentKey: null,
+        concessionArgumentKey: null,
         truncated: false,
       });
       return;

@@ -53,6 +53,8 @@ export interface MatchRepository {
     sectionNo: number;
     turnIndex: number;
     answerText: string;
+    /** 回答で認めた論点（設計 §15.3）。省略すると変えない */
+    concessionArgumentKey?: string | null;
     truncated?: boolean;
   }): Promise<void>;
   listCxTurns(matchId: string): Promise<readonly CxTurnRecord[]>;

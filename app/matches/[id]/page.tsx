@@ -3,12 +3,13 @@ import { notFound } from 'next/navigation';
 
 import { buildMatchSnapshot } from '@/application/match-snapshot';
 import { ConstructiveForm } from '@/components/debate/constructive-form';
+import { CxAnswerForm } from '@/components/debate/cx-answer-form';
 import { FlowSheet } from '@/components/debate/flow-sheet';
 import { ProgressList } from '@/components/debate/progress-list';
 import { StepButton } from '@/components/debate/step-button';
 import { constructiveLimits, slotSide } from '@/domain/arguments';
 import { getMatchRepository } from '@/infrastructure/repositories';
-import type { Seat, SlotKind } from '@/schemas/common';
+import { seatSide, type Seat, type SlotKind } from '@/schemas/common';
 
 /**
  * Match Room（設計 §5.1 `/matches/[id]` / §18.1）。
@@ -49,9 +50,10 @@ export default async function MatchRoomPage({
   if (state === null) notFound();
 
   const snapshot = await buildMatchSnapshot(repository, state);
-  const [cards, speeches] = await Promise.all([
+  const [cards, speeches, cxTurns] = await Promise.all([
     repository.listEvidenceCards(id),
     repository.listSpeeches(id),
+    repository.listCxTurns(id),
   ]);
 
   const slot = snapshot.currentSlot;
@@ -67,6 +69,21 @@ export default async function MatchRoomPage({
 
   const side = slot !== null && slot.kind === 'constructive' ? slotSide(slot) : null;
   const limits = side === null ? null : constructiveLimits(state.ruleSet, side);
+
+  // 質疑の往復。確定した質問と回答は読み取り専用で並べる（設計 §18.1）
+  const sectionTurns =
+    slot?.kind === 'cx' && slot.sectionNo !== null
+      ? cxTurns
+          .filter((turn) => turn.sectionNo === slot.sectionNo)
+          .sort((left, right) => left.turnIndex - right.turnIndex)
+      : [];
+  const answeringSide = slot?.respondentSeat == null ? null : seatSide(slot.respondentSeat);
+  const currentTurn =
+    snapshot.cx === null
+      ? undefined
+      : sectionTurns.find((turn) => turn.turnIndex === snapshot.cx?.turnCursor);
+  const turnLabel =
+    snapshot.cx === null ? '' : `質問 ${snapshot.cx.turnCursor + 1}/${snapshot.cx.total}`;
 
   return (
     <main>
@@ -148,12 +165,47 @@ export default async function MatchRoomPage({
         />
       )}
 
+      {sectionTurns.length > 0 && (
+        <section aria-labelledby="cx-turns-heading">
+          <h2 id="cx-turns-heading">これまでの質疑</h2>
+          <ol className="cx-turns">
+            {sectionTurns.map((turn) => (
+              <li key={turn.turnIndex}>
+                <p className="cx-turn-position">
+                  質問 {turn.turnIndex + 1}/{snapshot.cx?.total ?? sectionTurns.length}
+                  {turn.truncated && <span className="badge">打ち切り</span>}
+                </p>
+                <p className="cx-question">{turn.questionText}</p>
+                {turn.answerText !== null && <p className="cx-answer">{turn.answerText}</p>}
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
+      {snapshot.currentAction === 'input_answer' &&
+        snapshot.cx !== null &&
+        currentTurn !== undefined &&
+        answeringSide !== null && (
+          <CxAnswerForm
+            matchId={snapshot.id}
+            version={snapshot.version}
+            slotIndex={state.currentSlotIndex}
+            cxTurnIndex={snapshot.cx.turnCursor}
+            turnLabel={turnLabel}
+            question={currentTurn.questionText}
+            evidenceCards={cards
+              .filter((card) => card.side === answeringSide)
+              .map((card) => ({ id: card.id, title: card.title, sourceLabel: card.sourceLabel }))}
+          />
+        )}
+
       {snapshot.currentAction === 'advance' && (
         <section aria-labelledby="next-heading">
           <h2 id="next-heading">次の進行</h2>
           <p>
             進行はサーバが決めます。1回押すごとに1ステップだけ進みます（設計 §14.1）。
-            AIが担当するスロットの生成は、後続のPRで追加されます。
+            質疑では、質問1件または回答1件までしか進みません（設計 §7）。
           </p>
           <StepButton
             matchId={snapshot.id}

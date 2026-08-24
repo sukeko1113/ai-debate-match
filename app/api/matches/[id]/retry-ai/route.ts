@@ -1,5 +1,7 @@
 import { buildMatchSnapshot } from '@/application/match-snapshot';
+import { retryCxTurn } from '@/application/run-cx-turn';
 import { retryAiSlot } from '@/application/run-slot';
+import { currentSlot } from '@/domain/match';
 import { startMatchRequestSchema } from '@/schemas/api';
 
 import { aiServerDeps, errorResponse, readJsonBody, successResponse } from '../../../_shared/http';
@@ -23,7 +25,14 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
 
   const deps = aiServerDeps();
-  const result = await retryAiSlot(deps, {
+  const state = await deps.repository.findMatch(id);
+  if (state === null) {
+    return errorResponse('MATCH_NOT_FOUND', `match が見つからない（id=${id}）。`, { matchId: id });
+  }
+
+  // 質疑は往復が単位なので、再実行の入口も分ける（設計 §7）
+  const retry = currentSlot(state)?.kind === 'cx' ? retryCxTurn : retryAiSlot;
+  const result = await retry(deps, {
     matchId: id,
     expectedVersion: parsed.data.expectedVersion,
   });

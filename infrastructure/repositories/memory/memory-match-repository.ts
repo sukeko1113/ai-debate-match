@@ -250,6 +250,7 @@ export class MemoryMatchRepository implements MatchRepository {
     sectionNo: number;
     turnIndex: number;
     answerText: string;
+    concessionArgumentKey?: string | null;
     truncated?: boolean;
   }): Promise<void> {
     const position = this.tables.cxTurns.findIndex(
@@ -269,6 +270,10 @@ export class MemoryMatchRepository implements MatchRepository {
     this.tables.cxTurns[position] = {
       ...row,
       answerText: input.answerText,
+      concessionArgumentKey:
+        input.concessionArgumentKey === undefined
+          ? row.concessionArgumentKey
+          : input.concessionArgumentKey,
       truncated: input.truncated ?? row.truncated,
     };
   }

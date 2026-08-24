@@ -1,7 +1,14 @@
 import type { MatchState } from '@/domain/match';
-import type { ArgumentRecord, EvidenceCardRecord, SpeechRecord } from '@/domain/repositories';
+import { constructiveLimits } from '@/domain/arguments';
+import type {
+  ArgumentRecord,
+  CxTurnRecord,
+  EvidenceCardRecord,
+  SpeechRecord,
+} from '@/domain/repositories';
 import type { AiRole } from '@/infrastructure/ai/provider';
 import { seatSide, type Side } from '@/schemas/common';
+import type { Persona } from '@/schemas/persona';
 import type { RuleSlot } from '@/schemas/rule-set';
 
 /**
@@ -44,6 +51,11 @@ export type AiSlotInput = {
   readonly evidenceCards: readonly EvidenceCardInput[];
   /** 自陣の論点に対して行われた反論。Defense が使う（設計 §15.3） */
   readonly attacksOnOwnArguments: readonly { readonly argumentKey: string; readonly point: string }[];
+  /** 質疑で相手が認めた論点。Attack が使う（設計 §15.3 cxConcessions） */
+  readonly cxConcessions: readonly {
+    readonly argumentKey: string;
+    readonly sectionNo: number;
+  }[];
   /** 立論の件数制限（設計 §6.3 / §15.4） */
   readonly argumentLimits: { readonly min: number; readonly max: number } | null;
 };
@@ -100,7 +112,8 @@ export function buildAiSlotInput(params: {
   readonly argumentRows: readonly ArgumentRecord[];
   readonly cards: readonly EvidenceCardRecord[];
   readonly speeches: readonly SpeechRecord[];
-  readonly argumentLimits: { readonly min: number; readonly max: number } | null;
+  readonly cxTurns: readonly CxTurnRecord[];
+  readonly persona: Persona;
 }): AiSlotInput {
   const { slot, state } = params;
   if (slot.sectionNo === null || slot.actorSeat === null) {
@@ -112,6 +125,11 @@ export function buildAiSlotInput(params: {
   const side = seatSide(slot.actorSeat);
   const own = params.argumentRows.filter((row) => row.side === side);
   const opponent = params.argumentRows.filter((row) => row.side !== side);
+  const opponentKeys = opponent.map((row) => row.argumentKey);
+
+  // 立論の件数は rule set の上限と difficulty の小さい方（設計 §15.4）
+  const limits =
+    slot.kind === 'constructive' ? constructiveLimits(params.state.ruleSet, side) : null;
 
   return {
     sectionNo: slot.sectionNo,
@@ -126,6 +144,23 @@ export function buildAiSlotInput(params: {
       params.speeches,
       own.map((row) => row.argumentKey),
     ),
-    argumentLimits: params.argumentLimits,
+    // 相手が自分の論点について認めた譲歩だけを渡す（設計 §15.3 Attack の入力）
+    cxConcessions: params.cxTurns
+      .filter(
+        (turn) =>
+          turn.concessionArgumentKey !== null &&
+          opponentKeys.includes(turn.concessionArgumentKey),
+      )
+      .map((turn) => ({
+        argumentKey: turn.concessionArgumentKey ?? '',
+        sectionNo: turn.sectionNo,
+      })),
+    argumentLimits:
+      limits === null
+        ? null
+        : {
+            min: limits.minArguments,
+            max: Math.min(limits.maxArguments, params.persona.maxArguments),
+          },
   };
 }

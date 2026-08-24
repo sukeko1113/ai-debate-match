@@ -1,3 +1,4 @@
+import { runCxTurn } from '@/application/run-cx-turn';
 import { runAiSlot, type RunAiSlotDeps } from '@/application/run-slot';
 import { argumentInventoryOf } from '@/domain/arguments';
 import { decideSlotAction } from '@/domain/fallback';
@@ -107,8 +108,11 @@ export async function advanceMatch(
   }
 
   if (action === 'need_ai') {
-    // 1回の advance で生成は1回だけ（設計 §14.1）
-    return runAiSlot(deps, { matchId: params.matchId, expectedVersion });
+    // 1回の advance で生成は1回だけ（設計 §14.1）。
+    // CXは往復が単位なので、質問1件または回答1件だけを進める（設計 §7）
+    return slot.kind === 'cx'
+      ? runCxTurn(deps, { matchId: params.matchId, expectedVersion })
+      : runAiSlot(deps, { matchId: params.matchId, expectedVersion });
   }
 
   // auto_fill / cx_no_argument の固定文は P8 で入る（設計 §10）

@@ -1,6 +1,10 @@
 import { z } from 'zod';
 
-import type { MockAiFixture } from '@/schemas/ai-output';
+import {
+  parseMockAiFixture,
+  type MockAiFixture,
+  type MockAiFixtureInput,
+} from '@/schemas/ai-output';
 
 import {
   AiProviderError,
@@ -27,8 +31,11 @@ import {
  * 呼び出し側が修復指示を付けて再生成する。
  */
 
-/** input から呼び出し位置を読む。fixture はセクション番号で引く */
-const inputSectionSchema = z.object({ sectionNo: z.number().int().min(1) });
+/** input から呼び出し位置を読む。fixture はセクション番号と往復位置で引く */
+const inputSectionSchema = z.object({
+  sectionNo: z.number().int().min(1),
+  cxTurnIndex: z.number().int().min(0).nullish(),
+});
 
 /** 決定的な使用量。実測ではないので、出力の長さから機械的に出す */
 function usageOf(raw: string): UsageSnapshot {
@@ -45,22 +52,28 @@ export class MockDebateProvider implements DebateAiProvider {
   /** (role, sectionNo) ごとの呼び出し回数。試行順に fixture を進める */
   private readonly calls = new Map<string, number>();
 
-  constructor(fixture: MockAiFixture) {
-    this.fixture = fixture;
+  /** 書く側の形をそのまま受け取り、検証して既定値を埋める（設計 §15.7） */
+  constructor(fixture: MockAiFixture | MockAiFixtureInput) {
+    this.fixture = parseMockAiFixture(fixture);
   }
 
-  private nextOutput(role: AiRole, sectionNo: number): unknown {
-    const entry = this.fixture.responses.find(
+  private nextOutput(role: AiRole, sectionNo: number, cxTurnIndex: number | null): unknown {
+    const candidates = this.fixture.responses.filter(
       (response) => response.role === role && response.sectionNo === sectionNo,
     );
+    // 往復位置を指定した行を先に見る。CXの往復と再試行の並びを混ぜないため（設計 §7 / §15.5）
+    const entry =
+      candidates.find((response) => response.cxTurnIndex === cxTurnIndex) ??
+      candidates.find((response) => response.cxTurnIndex === null);
+
     if (entry === undefined) {
       throw new AiProviderError(
         'unavailable',
-        `Mock fixture に該当の出力が無い（role=${role}, sectionNo=${sectionNo}, fixture=${this.fixture.code}）。設計 §15.7`,
+        `Mock fixture に該当の出力が無い（role=${role}, sectionNo=${sectionNo}, cxTurnIndex=${String(cxTurnIndex)}, fixture=${this.fixture.code}）。設計 §15.7`,
       );
     }
 
-    const key = `${role}:${sectionNo}`;
+    const key = `${role}:${sectionNo}:${String(entry.cxTurnIndex)}`;
     const called = this.calls.get(key) ?? 0;
     this.calls.set(key, called + 1);
     return entry.outputs[Math.min(called, entry.outputs.length - 1)];
@@ -75,7 +88,11 @@ export class MockDebateProvider implements DebateAiProvider {
       );
     }
 
-    const output = this.nextOutput(request.role, section.data.sectionNo);
+    const output = this.nextOutput(
+      request.role,
+      section.data.sectionNo,
+      section.data.cxTurnIndex ?? null,
+    );
     const raw = JSON.stringify(output);
 
     const parsed = request.schema.safeParse(output);
@@ -92,6 +109,8 @@ export class MockDebateProvider implements DebateAiProvider {
   }
 }
 
-export function createMockDebateProvider(fixture: MockAiFixture): DebateAiProvider {
+export function createMockDebateProvider(
+  fixture: MockAiFixture | MockAiFixtureInput,
+): DebateAiProvider {
   return new MockDebateProvider(fixture);
 }

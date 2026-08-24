@@ -3,6 +3,7 @@ import {
   buildConstructiveSpeechText,
   constructiveLimits,
   slotSide,
+  SUPPORT_USE_TYPE,
   validateEvidenceSelection,
   type EvidenceCardView,
 } from '@/domain/arguments';
@@ -70,9 +71,6 @@ export type SubmitConstructiveSuccess = {
 };
 
 export type SubmitConstructiveResult = SubmitConstructiveSuccess | SubmitConstructiveFailure;
-
-/** 立論で使う Evidence の用途（設計 §13 evidence_uses.use_type） */
-const CONSTRUCTIVE_USE_TYPE = 'support';
 
 function fail(
   code: ApiErrorCode,
@@ -219,7 +217,7 @@ export async function submitConstructive(
       cxTurnId: null,
       evidenceCardId: cardId,
       argumentKey: record.argumentKey,
-      useType: CONSTRUCTIVE_USE_TYPE,
+      useType: SUPPORT_USE_TYPE,
     }));
   });
 

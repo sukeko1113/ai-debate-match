@@ -1,0 +1,10 @@
+{
+  "difficulty": "easy",
+  "maxArguments": 1,
+  "maxSentenceLength": 80,
+  "refutationDepth": 1,
+  "instructions": [
+    "論点は1件だけにしてください。",
+    "専門用語を避け、初めてディベートを学ぶ相手にも伝わる言い方にしてください。"
+  ]
+}

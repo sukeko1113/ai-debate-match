@@ -10,6 +10,13 @@ import type { ConstructiveInput, ConstructiveInputIssue } from '@/schemas/human-
  * 件数の上限は schema 側（設計 §8.1）が見る。
  */
 
+/**
+ * evidence_uses.use_type（設計 §13）。
+ * 設計に語彙の定義が無いため、Phase 1 は「その論点を支える」1種類だけを使う。
+ * 人間の立論もAIの再構築も同じ値を書き、後から種類を増やせるようにここに置く。
+ */
+export const SUPPORT_USE_TYPE = 'support';
+
 /** 検証に要る evidence_cards の列（設計 §13） */
 export type EvidenceCardView = {
   readonly id: string;

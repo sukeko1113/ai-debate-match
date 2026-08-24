@@ -1,4 +1,8 @@
-export { validateEvidenceSelection, type EvidenceCardView } from './evidence';
+export {
+  SUPPORT_USE_TYPE,
+  validateEvidenceSelection,
+  type EvidenceCardView,
+} from './evidence';
 export { argumentInventoryOf, type ArgumentKeyOwner } from './inventory';
 export {
   argumentKeyAt,

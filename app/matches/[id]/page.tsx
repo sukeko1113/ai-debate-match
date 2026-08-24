@@ -165,6 +165,29 @@ export default async function MatchRoomPage({
         </section>
       )}
 
+      {snapshot.status === 'paused' && (
+        <section aria-labelledby="paused-heading">
+          <h2 id="paused-heading">AIの生成が確定しませんでした</h2>
+          <p>
+            同じセクションのまま、もう一度生成します。位置は動きません（設計 §11）。
+          </p>
+          <StepButton
+            matchId={snapshot.id}
+            version={snapshot.version}
+            path="retry-ai"
+            label="もう一度生成する"
+            pendingLabel="生成しています…"
+          />
+        </section>
+      )}
+
+      {snapshot.currentAction === 'wait_ai' && (
+        <section aria-labelledby="wait-ai-heading">
+          <h2 id="wait-ai-heading">AIが生成しています</h2>
+          <p>この画面を再読込すると、いまの状態から続けられます。</p>
+        </section>
+      )}
+
       {snapshot.currentAction === 'skip_prep' && (
         <section aria-labelledby="prep-heading">
           <h2 id="prep-heading">準備時間</h2>

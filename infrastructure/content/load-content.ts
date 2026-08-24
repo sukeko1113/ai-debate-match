@@ -3,7 +3,9 @@ import 'server-only';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
+import { parseMockAiFixture, type MockAiFixture } from '@/schemas/ai-output';
 import { parseMotion, type Motion } from '@/schemas/motion';
+import { parsePersona, type Persona } from '@/schemas/persona';
 import { parseRuleSet, type RuleSet } from '@/schemas/rule-set';
 
 /**
@@ -44,4 +46,25 @@ export function loadMotion(fileName: string = DEFAULT_MOTION_FILE): Motion {
   return parseMotion(readContentJson('motions', fileName), {
     source: `content/motions/${fileName}.json`,
   });
+}
+
+export const DEFAULT_MOCK_AI_FIXTURE_FILE = 'default';
+
+/** `content/personas/<difficulty>.json` を読む（設計 §15.4） */
+export function loadPersona(difficulty: Persona['difficulty']): Persona {
+  return parsePersona(
+    readContentJson('personas', difficulty),
+    `content/personas/${difficulty}.json`,
+  );
+}
+
+/**
+ * `content/fixtures/mock-ai/<fileName>.json` を読む（設計 §15.7）。
+ * 壊れた fixture をそのまま Provider へ渡さない。
+ */
+export function loadMockAiFixture(fileName: string = DEFAULT_MOCK_AI_FIXTURE_FILE): MockAiFixture {
+  return parseMockAiFixture(
+    readContentJson(path.join('fixtures', 'mock-ai'), fileName),
+    `content/fixtures/mock-ai/${fileName}.json`,
+  );
 }

@@ -2,6 +2,10 @@ import 'server-only';
 
 import { NextResponse } from 'next/server';
 
+import type { AiLimits } from '@/application/run-slot';
+import { getDebateAiProvider } from '@/infrastructure/ai';
+import { getServerEnv } from '@/infrastructure/config/env';
+import { loadPersona } from '@/infrastructure/content';
 import { getMatchRepository } from '@/infrastructure/repositories';
 import type { ApiErrorCode } from '@/schemas/api';
 
@@ -63,5 +67,27 @@ export function serverDeps() {
     repository: getMatchRepository(),
     newId: (prefix: string): string => `${prefix}_${crypto.randomUUID()}`,
     now: (): string => new Date().toISOString(),
+  };
+}
+
+/**
+ * AI を呼ぶ経路の実行環境（設計 §15 / §22）。
+ * 上限も timeout も環境変数から来る。route にも application にも数値を書かない。
+ */
+export function aiServerDeps() {
+  const env = getServerEnv();
+  const limits: AiLimits = {
+    maxRunsPerMatch: env.MAX_AI_RUNS_PER_MATCH,
+    maxAttemptsPerMatch: env.MAX_AI_ATTEMPTS_PER_MATCH,
+    maxRetriesPerRun: env.MAX_AI_RETRIES_PER_RUN,
+    runTimeoutMs: env.AI_RUN_TIMEOUT_MS,
+    maxMatchOutputTokens: env.MAX_MATCH_OUTPUT_TOKENS,
+  };
+
+  return {
+    ...serverDeps(),
+    provider: getDebateAiProvider(),
+    personaFor: loadPersona,
+    limits,
   };
 }

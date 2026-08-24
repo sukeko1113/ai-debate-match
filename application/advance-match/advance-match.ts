@@ -1,3 +1,4 @@
+import { runAiSlot, type RunAiSlotDeps } from '@/application/run-slot';
 import { argumentInventoryOf } from '@/domain/arguments';
 import { decideSlotAction } from '@/domain/fallback';
 import {
@@ -8,7 +9,6 @@ import {
   type MatchEvent,
   type MatchState,
 } from '@/domain/match';
-import type { MatchRepository } from '@/domain/repositories';
 import type { ApiErrorCode } from '@/schemas/api';
 
 /**
@@ -17,16 +17,11 @@ import type { ApiErrorCode } from '@/schemas/api';
  * 1回のリクエストで進むのは1ステップである。CXスロットでも質問1件または回答1件までしか
  * 進めない（設計 §14.1）。ジョブキューは使わず、同期で返す。
  *
- * **P5 の時点で扱えるのは、AI生成を伴わない経路だけである。**
- * 担当席がAIのスロットに来たら、状態を変えずに「まだ提供されていない」と返す。
- * ここに Mock でも実 Provider でもない仮の生成を置かない（CLAUDE.md 禁止事項の趣旨）。
- * AI の生成は P6 でこの分岐に入る。
+ * 担当席がAIのスロットは `run-slot` へ渡す。生成・検証・再試行はそちらの責務である
+ * （設計 §15）。固定文（`auto_fill` / `cx_no_argument`）は P8 で入る。
  */
 
-export type AdvanceMatchDeps = {
-  readonly repository: MatchRepository;
-  readonly now: () => string;
-};
+export type AdvanceMatchDeps = RunAiSlotDeps;
 
 export type AdvanceMatchParams = {
   readonly matchId: string;
@@ -111,10 +106,15 @@ export async function advanceMatch(
     return commit(deps, state, { type: 'NEED_HUMAN', expectedVersion, args });
   }
 
-  // need_ai / auto_fill / cx_no_argument は、AI Provider と固定文（P6・P8）が入ってから扱う
+  if (action === 'need_ai') {
+    // 1回の advance で生成は1回だけ（設計 §14.1）
+    return runAiSlot(deps, { matchId: params.matchId, expectedVersion });
+  }
+
+  // auto_fill / cx_no_argument の固定文は P8 で入る（設計 §10）
   return fail(
     'AI_PROVIDER_UNAVAILABLE',
-    'AIの生成と固定文の保存は、後続のPRで追加される（設計 §15 / §10）。',
+    '論点0件のときの固定文と固定質問は、後続のPRで追加される（設計 §10）。',
     { slotIndex: slot.index, slotKey: slot.key, decision: action },
   );
 }

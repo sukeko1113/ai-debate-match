@@ -85,6 +85,7 @@ export function newMatch(
     ruleSet: overrides.ruleSet ?? fixtureRuleSet,
     seats: overrides.seats ?? defaultSeats,
     motion: { code: 'demo_bukatsu_ja', textJa: 'テスト用の論題。是か非か。' },
+    difficulty: 'normal',
   });
 }
 

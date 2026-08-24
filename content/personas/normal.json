@@ -1,0 +1,10 @@
+{
+  "difficulty": "normal",
+  "maxArguments": 2,
+  "maxSentenceLength": 120,
+  "refutationDepth": 2,
+  "instructions": [
+    "論点は2件までにしてください。",
+    "主張・理由・根拠の順に述べてください。"
+  ]
+}

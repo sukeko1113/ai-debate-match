@@ -70,3 +70,21 @@ export {
   type ConstructiveParseResult,
   type ConstructiveRequest,
 } from './human-input';
+
+export {
+  PersonaValidationError,
+  parsePersona,
+  personaSchema,
+  type Persona,
+} from './persona';
+
+export {
+  buildAttackOutputSchema,
+  buildDefenseOutputSchema,
+  buildSummaryOutputSchema,
+  referenceArray,
+  referenceEnum,
+  type AttackOutput,
+  type DefenseOutput,
+  type SummaryOutput,
+} from './ai-output';

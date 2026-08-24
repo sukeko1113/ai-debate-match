@@ -2,7 +2,7 @@ import { skipPrep } from '@/application/advance-match';
 import { buildMatchSnapshot } from '@/application/match-snapshot';
 import { startMatchRequestSchema } from '@/schemas/api';
 
-import { errorResponse, readJsonBody, serverDeps, successResponse } from '../../../_shared/http';
+import { aiServerDeps, errorResponse, readJsonBody, successResponse } from '../../../_shared/http';
 
 /**
  * POST /api/matches/:id/skip-prep（設計 §14.3 / §11 SKIP_PREP）。
@@ -20,7 +20,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     });
   }
 
-  const deps = serverDeps();
+  const deps = aiServerDeps();
   const result = await skipPrep(deps, {
     matchId: id,
     expectedVersion: parsed.data.expectedVersion,

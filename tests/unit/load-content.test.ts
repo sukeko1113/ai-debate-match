@@ -3,7 +3,9 @@ import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_MOTION_FILE,
   DEFAULT_RULE_SET_FILE,
+  loadMockAiFixture,
   loadMotion,
+  loadPersona,
   loadRuleSet,
 } from '@/infrastructure/content';
 import { RuleSetValidationError } from '@/schemas/rule-set';
@@ -45,5 +47,25 @@ describe('契約ファイルの読み込み', () => {
     }
     expect(error).toBeInstanceOf(Error);
     expect(error).not.toBeInstanceOf(RuleSetValidationError);
+  });
+});
+
+describe('AIが読む契約ファイル（設計 §15.4 / §15.7）', () => {
+  it.each(['easy', 'normal', 'hard'] as const)('persona %s を検証して返す', (difficulty) => {
+    const persona = loadPersona(difficulty);
+    expect(persona.difficulty).toBe(difficulty);
+    expect(persona.instructions.length).toBeGreaterThan(0);
+  });
+
+  it('Mock の fixture を検証して返す', () => {
+    const fixture = loadMockAiFixture();
+    expect(fixture.code).toBe('mock_default_ja');
+    expect(fixture.responses.length).toBeGreaterThan(0);
+    // 出力の並びは試行順である（設計 §15.5）
+    expect(fixture.responses.every((response) => response.outputs.length >= 1)).toBe(true);
+  });
+
+  it('存在しない persona は落ちる', () => {
+    expect(() => loadPersona('unknown' as 'easy')).toThrow();
   });
 });

@@ -100,6 +100,7 @@ async function createRunner(): Promise<MatchRunner> {
       displayName: seat === 'A1' ? 'テスト太郎' : `AI ${seat}`,
     })),
     motion: { code: motion.code, textJa: motion.textJa },
+    difficulty: 'normal',
   });
   await repository.createMatch(state);
   return new MatchRunner(repository, state);

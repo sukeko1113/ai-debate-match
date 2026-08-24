@@ -1,3 +1,4 @@
+import type { Difficulty } from '@/schemas/api';
 import type { MatchStatus, Seat, SlotProgressStatus } from '@/schemas/common';
 import type { RuleSet, RuleSlot } from '@/schemas/rule-set';
 
@@ -40,6 +41,8 @@ export type MatchState = {
   readonly seats: readonly SeatAssignment[];
   /** 設計 §13 matches.motion_id / motion_ja_snapshot に相当する最小の写し */
   readonly motion: { readonly code: string; readonly textJa: string };
+  /** 設計 §13 matches.difficulty。AIの出力だけを変える（設計 §15.4） */
+  readonly difficulty: Difficulty;
   readonly status: MatchStatus;
   /** 0..(slots.length - 1)。client は次番号を指定しない（設計 §6.3） */
   readonly currentSlotIndex: number;
@@ -58,6 +61,7 @@ export type CreateMatchStateInput = {
   readonly ruleSet: RuleSet;
   readonly seats: readonly SeatAssignment[];
   readonly motion: { readonly code: string; readonly textJa: string };
+  readonly difficulty: Difficulty;
 };
 
 /** 作成直後の試合。設計 §11 の起点である draft から始まる */
@@ -67,6 +71,7 @@ export function createMatchState(input: CreateMatchStateInput): MatchState {
     ruleSet: input.ruleSet,
     seats: input.seats,
     motion: input.motion,
+    difficulty: input.difficulty,
     status: 'draft',
     currentSlotIndex: 0,
     version: 1,

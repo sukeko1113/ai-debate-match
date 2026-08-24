@@ -1,0 +1,10 @@
+{
+  "difficulty": "hard",
+  "maxArguments": 2,
+  "maxSentenceLength": 160,
+  "refutationDepth": 2,
+  "instructions": [
+    "論点は2件までにしてください。",
+    "主張・理由・根拠の順に述べ、最後に相手の主張との比較衡量を1文で加えてください。"
+  ]
+}

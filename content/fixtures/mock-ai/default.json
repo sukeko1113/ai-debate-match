@@ -1,0 +1,120 @@
+{
+  "code": "mock_default_ja",
+  "responses": [
+    {
+      "role": "constructive",
+      "sectionNo": 3,
+      "outputs": [
+        {
+          "plan": null,
+          "arguments": [
+            {
+              "label": "地域の受け皿が足りない",
+              "body": "地域クラブの数と指導者は不足しています。全面移行すれば、活動を続けられない生徒が出ます。したがって現行制度を維持すべきです。",
+              "evidenceCardIds": []
+            },
+            {
+              "label": "家計の負担が増える",
+              "body": "地域クラブは会費が必要です。学校の部活動より費用が上がり、参加できない生徒が生まれます。",
+              "evidenceCardIds": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "attack",
+      "sectionNo": 5,
+      "outputs": [
+        {
+          "speechText": "肯定側の第1論点に反論します。学習時間が増えるという主張には、増えた時間が学習に使われる保証がありません。",
+          "refutations": [
+            {
+              "argumentKey": "AD1",
+              "point": "活動時間が減っても、その時間が学習に振り替わる根拠が示されていません。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "attack",
+      "sectionNo": 7,
+      "outputs": [
+        {
+          "speechText": "否定側の第1論点に反論します。受け皿の不足は移行の期間を区切ることで解消できます。",
+          "refutations": [
+            {
+              "argumentKey": "DA1",
+              "point": "受け皿が足りないのは移行初期だけであり、5年の期間で解消できます。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "defense",
+      "sectionNo": 9,
+      "outputs": [
+        {
+          "speechText": "第1論点を再構築します。増えた時間の使い道は生徒が選べます。選択制であること自体が学習時間の確保につながります。",
+          "defenses": [
+            {
+              "argumentKey": "AD1",
+              "point": "選択制は時間の使い道を生徒に返す制度であり、学習時間の確保と両立します。"
+            }
+          ],
+          "evidenceUses": []
+        }
+      ]
+    },
+    {
+      "role": "defense",
+      "sectionNo": 10,
+      "outputs": [
+        {
+          "speechText": "第1論点を再構築します。移行期間を区切っても、指導者の総数が足りない事実は変わりません。",
+          "defenses": [
+            {
+              "argumentKey": "DA1",
+              "point": "期間を区切っても指導者の総数は増えず、受け皿の不足は残ります。"
+            }
+          ],
+          "evidenceUses": []
+        }
+      ]
+    },
+    {
+      "role": "summary",
+      "sectionNo": 11,
+      "outputs": [
+        {
+          "speechText": "本日の争点は、生徒の時間の使い方と地域の受け皿です。前者では肯定側が制度の選択肢を示しました。",
+          "comparisons": [
+            {
+              "affKey": "AD1",
+              "negKey": "DA1",
+              "winner": "affirmative"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "summary",
+      "sectionNo": 12,
+      "outputs": [
+        {
+          "speechText": "本日の争点は受け皿の有無です。制度を変える側が、移行後に活動を続けられる根拠を示せていません。",
+          "comparisons": [
+            {
+              "affKey": "AD1",
+              "negKey": "DA1",
+              "winner": "negative"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

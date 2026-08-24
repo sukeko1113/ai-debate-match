@@ -72,7 +72,7 @@ export type CreateMatchResult = {
  * 作成して `ready` まで進める。
  *
  * `difficulty` は AI のふるまいだけを変える値であり、ルール・時間・往復数は変えない
- * （設計 §15.4）。P5 の時点では保存するだけで、使うのは P6 である。
+ * （設計 §15.4）。状態に保存し、AIを呼ぶときに persona として読む。
  */
 export async function createMatch(
   deps: CreateMatchDeps,
@@ -83,6 +83,7 @@ export async function createMatch(
     ruleSet: params.ruleSet,
     seats: seatsFor(params.playerName),
     motion: { code: params.motion.code, textJa: params.motion.textJa },
+    difficulty: params.difficulty,
   });
 
   // 8席・motion・rule set の検証は状態機械が持つ（設計 §11 CONFIGURE）

@@ -52,23 +52,30 @@ CLAUDE.md の「着手前の確認」に従い、**同じP番号のブランチ�
 | --- | --- | --- |
 | Attack | 反論対象の論点が0件 | 固定文。`speeches.auto_filled=true`、slot status=`skipped_no_target` |
 | Defense | 自陣の論点が0件 | 同上 |
-| Summary | その側の論点が0件 | 『有効な立論なし』を含む固定文。同上 |
+
+（Summary は固定文にしない。理由は下記 §2）
 
 - 固定文は `content/` に置かない。**コード側の定数**である（設計 §10.2）。`content/*.json` はコードから書き換えない（CLAUDE.md）
 - `evidence_uses` は作らない。固定文は Evidence を使わない
 - `arguments` に行を足さない。行が増えるのは Constructive だけである（CLAUDE.md 禁止事項）
 - 監査ログに残す（設計 §10.2）
 
-### 2. Summary の経路（設計 §10 / §10.2 — **判定関数の修正が要る**）
+### 2. Summary の経路（設計 §10 / §10.2 と §17 が食い違う — **AI生成に寄せる**）
 
-`decideSlotAction` は今、Summary に対して常に `need_human` / `need_ai` を返す。P3 の実装は
-「Summary は片側0件でも通常どおり進める」と読んだが、設計 §10.2 は
-**自動充填の対象として Attack・Defense と並べて Summary を挙げている。**
+設計の2か所が食い違っている。
 
-- `fallbackFor` に `summary` を足し、**その席の陣営の論点が0件なら `auto_fill`** を返す
-- 相手側が0件で自陣に論点がある側の Summary は、通常どおりAIが書く。
-  `comparisons` は空配列になる（P6 で実装済み・`allowEmptyComparisons`）
-- `domain/fallback` のテストに、第11・第12セクションの両方の場合を足す
+- §10.2 は自動充填の対象として **Attack・Defense と並べて Summary を挙げている**
+- §17 のAI実行回数は、論点0件時を「第2CXは固定質問（-3）、第5・第9は自動充填（-2）」で
+  29 → 24 と数えており、**Summary の分を引いていない**
+
+Summary を固定文にすると実測が 23 になり §17 の表と1件ずれる。**§17 に合わせ、Summary は
+論点0件でも通常どおりAIが書く**（利用者の判断）。`decideSlotAction` は変更しない。
+
+- 論点0件の側については、入力に『その陣営に有効な立論が無い』ことを**固定の一文として**渡す。
+  AIに空の自陣を推測で埋めさせない（設計 §10.2 の趣旨）
+- `comparisons` は空配列になる（P6 で実装済み・`allowEmptyComparisons`）
+- 論点の捏造は §15.6 の参照検査が防ぐ。参照できる key の集合が空なので、
+  key を含む出力は棄却される
 
 ### 3. 論点0件のCX（設計 §10 / §10.1）
 
@@ -121,13 +128,24 @@ OpenAI Text Provider（P10）。E2Eの12シナリオと10回完走（P11）。
 4. 論点0件のCXで `ai_runs` が1件も増えない
 5. `targetArgumentKey=null` の `cx_turns` が保存できる
 6. 第5セクション Attack・第9セクション Defense が固定文で保存され、`speeches.auto_filled=true`・slot status=`skipped_no_target` になる
-7. 論点0件側の Summary が『有効な立論なし』を含む固定文になる（設計 §10 / §10.2）
-8. 論点のある側の Summary は通常どおりAIが書き、`comparisons` が空配列になる
+7. 論点0件側の Summary もAIが書き、入力に『有効な立論なし』の一文が渡る（上記 §2 の判断）
+8. どちらの Summary も `comparisons` が空配列になる（設計 §10）
 9. 固定文・固定質問の経路が `evidence_uses` を作らず、`arguments` にも行を足さない
 10. 論点0件の完走で `ai_runs` の成功件数が設計 §17 の数と一致する
 11. **通常系（両側に論点がある）の完走が壊れていない**（P7 の integration が通り続ける）
 12. Evidence ID guard の各経路にテストがある（設計 §15.6）
 13. 自動充填と固定質問が監査ログに残る（設計 §10.2）
+
+## 実装中に分かったこと（P11 へ）
+
+**論点0件の経路は、いまブラウザからは到達できない。** 肯定側の論点が0件になるのは
+A1が立論を出さないときだけであり、その入口は `HUMAN_TIMEOUT` である。しかし
+設計 §14.3 のエンドポイント表に timeout を起こす口は無く、realtime の時計（設計 §6.4）は
+Phase 1 のこのPRの範囲外である。よって固定文・固定質問の経路は application 層までで確かめ、
+integration テストで押さえてある。
+
+実時間のカウントダウンと自動 `HUMAN_TIMEOUT` が入るPRで、画面からも通ることを確かめること。
+Mock の fixture は `MOCK_AI_FIXTURE=no-argument` で切り替えられる。
 
 ## 完了報告に書くこと
 

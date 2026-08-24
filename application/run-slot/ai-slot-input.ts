@@ -1,5 +1,6 @@
 import type { MatchState } from '@/domain/match';
 import { constructiveLimits } from '@/domain/arguments';
+import { NO_VALID_CONSTRUCTIVE_NOTE } from '@/domain/fallback';
 import type {
   ArgumentRecord,
   CxTurnRecord,
@@ -58,6 +59,14 @@ export type AiSlotInput = {
   }[];
   /** 立論の件数制限（設計 §6.3 / §15.4） */
   readonly argumentLimits: { readonly min: number; readonly max: number } | null;
+  /**
+   * 論点が0件の陣営についての固定の注記（設計 §10 / §10.2）。
+   * 無ければ空配列。AIに空の陣営を推測で埋めさせないために渡す。
+   */
+  readonly noValidConstructiveNotes: readonly {
+    readonly side: Side;
+    readonly note: string;
+  }[];
 };
 
 function toArgumentView(record: ArgumentRecord): ArgumentView {
@@ -162,5 +171,12 @@ export function buildAiSlotInput(params: {
             min: limits.minArguments,
             max: Math.min(limits.maxArguments, params.persona.maxArguments),
           },
+    // 立論を作る Constructive では、まだ0件なのが当たり前なので注記しない
+    noValidConstructiveNotes:
+      slot.kind === 'constructive'
+        ? []
+        : (['affirmative', 'negative'] as const)
+            .filter((entry) => !params.argumentRows.some((row) => row.side === entry))
+            .map((entry) => ({ side: entry, note: NO_VALID_CONSTRUCTIVE_NOTE })),
   };
 }

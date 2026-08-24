@@ -108,14 +108,10 @@ async function generateAndCommit(
   });
   const questionedKeys = questionedKeysOf(input);
 
-  if (questionedKeys.length === 0) {
-    // 質問の対象が0件のときは固定質問に切り替える（設計 §10）。P8 の範囲である
-    return failure(
-      'AI_PROVIDER_UNAVAILABLE',
-      '論点0件のときの固定質問は、後続のPRで追加される（設計 §10.1）。',
-      { slotIndex: context.slot.index, cxTurnIndex: context.cursor },
-    );
-  }
+  // 論点が0件でも、質問の対象になったスピーチは存在する（例: 立論0件の陣営が行った反論）。
+  // そのときは対象keyを null にして、スピーチそのものについて尋ねる（設計 §10）。
+  // 立論そのものが無いCX（設計 §10.1 の cx_mode='no_argument'）は
+  // 固定質問へ切り替わるので、ここへは来ない。
 
   if (context.role === 'cx_question') {
     const generated = await generateWithRetries<CxQuestionOutput>(deps, matchId, {
@@ -125,10 +121,16 @@ async function generateAndCommit(
       persona,
       slotIndex: context.slot.index,
       cxTurnIndex: context.cursor,
-      validate: (output) =>
-        questionedKeys.includes(output.targetArgumentKey)
+      validate: (output) => {
+        if (output.targetArgumentKey === null) {
+          return questionedKeys.length === 0
+            ? []
+            : ['targetArgumentKey: 参照できる論点があるのに対象が選ばれていない（設計 §15.3）'];
+        }
+        return questionedKeys.includes(output.targetArgumentKey)
           ? []
-          : [`targetArgumentKey: 入力に無い argument_key である: ${output.targetArgumentKey}`],
+          : [`targetArgumentKey: 入力に無い argument_key である: ${output.targetArgumentKey}`];
+      },
     });
     if (!generated.ok) return pauseAfterFailure(deps, generating, generated);
 

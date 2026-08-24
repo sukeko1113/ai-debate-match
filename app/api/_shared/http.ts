@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 import type { AiLimits } from '@/application/run-slot';
 import { getDebateAiProvider } from '@/infrastructure/ai';
 import { getServerEnv } from '@/infrastructure/config/env';
-import { loadPersona } from '@/infrastructure/content';
+import { loadMotion, loadPersona } from '@/infrastructure/content';
 import { getMatchRepository } from '@/infrastructure/repositories';
 import type { ApiErrorCode } from '@/schemas/api';
 
@@ -88,6 +88,23 @@ export function aiServerDeps() {
     ...serverDeps(),
     provider: getDebateAiProvider(),
     personaFor: loadPersona,
+    noArgumentCxQuestionsFor,
     limits,
   };
+}
+
+/**
+ * 論点0件のCXで使う固定質問（設計 §10.1）。
+ *
+ * 質問文は論題ごとに `content/motions/*.json` にある。AIには作らせない。
+ * Phase 1 が扱う論題は同梱の1件だけなので、code が合わなければ読み替えずに投げる。
+ */
+export function noArgumentCxQuestionsFor(motionCode: string): readonly string[] {
+  const motion = loadMotion();
+  if (motion.code !== motionCode) {
+    throw new Error(
+      `同梱の論題以外は Phase 1 では扱わない（要求=${motionCode}, 同梱=${motion.code}）。設計 §10.1`,
+    );
+  }
+  return motion.noArgumentCxQuestions;
 }

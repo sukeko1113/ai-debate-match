@@ -37,7 +37,7 @@ export function getDebateAiProvider(): DebateAiProvider {
   // OPENAI_TEXT_MODEL が未設定なら Mock へ戻す（設計 §15.5 実Provider の行）
 
   const store = holder();
-  store[PROVIDER_KEY] ??= createMockDebateProvider(loadMockAiFixture());
+  store[PROVIDER_KEY] ??= createMockDebateProvider(loadMockAiFixture(env.MOCK_AI_FIXTURE));
   return store[PROVIDER_KEY];
 }
 

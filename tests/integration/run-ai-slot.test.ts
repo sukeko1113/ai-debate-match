@@ -1,13 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { advanceMatch } from '@/application/advance-match';
+import { advanceMatch, type AdvanceMatchDeps } from '@/application/advance-match';
 import {
   buildAiSlotInput,
   referenceViolations,
   retryAiSlot,
   runAiSlot,
   type AiLimits,
-  type RunAiSlotDeps,
 } from '@/application/run-slot';
 import type { MatchState } from '@/domain/match';
 import type { ArgumentRecord, EvidenceCardRecord, MatchRepository } from '@/domain/repositories';
@@ -17,6 +16,9 @@ import type { MockAiResponseInput } from '@/schemas/ai-output';
 import type { Persona } from '@/schemas/persona';
 
 import { bothSidesArguments, driveToSlot, fixtureRuleSet } from '../support/match-fixtures';
+
+/** 論点0件のCXで使う固定質問（設計 §10.1）。AIには作らせない */
+const FIXED_CX_QUESTIONS = ['固定質問1。', '固定質問2。', '固定質問3。'];
 
 /**
  * AIスロットの実行（設計 §15 / §17）。
@@ -115,7 +117,7 @@ async function seedCards(
 }
 
 type Scene = {
-  readonly deps: RunAiSlotDeps;
+  readonly deps: AdvanceMatchDeps;
   readonly repository: MatchRepository;
   readonly state: MatchState;
 };
@@ -133,10 +135,11 @@ async function sceneAt(
   await seedCards(repository, state.id);
 
   let sequence = 0;
-  const deps: RunAiSlotDeps = {
+  const deps: AdvanceMatchDeps = {
     repository,
     provider: createMockDebateProvider({ code: 'test', responses: [...responses] }),
     personaFor: () => PERSONA,
+    noArgumentCxQuestionsFor: () => FIXED_CX_QUESTIONS,
     limits,
     newId: (prefix) => {
       sequence += 1;
@@ -391,13 +394,14 @@ describe('AIの立論も採番はサーバが行う（設計 §8.2）', () => {
     ]);
 
     let sequence = 0;
-    const deps: RunAiSlotDeps = {
+    const deps: AdvanceMatchDeps = {
       repository,
       provider: createMockDebateProvider({
         code: 'test',
         responses: [{ role: 'constructive', sectionNo: 3, outputs: [output] }],
       }),
       personaFor: () => PERSONA,
+      noArgumentCxQuestionsFor: () => FIXED_CX_QUESTIONS,
       limits: LIMITS,
       newId: (prefix) => {
         sequence += 1;

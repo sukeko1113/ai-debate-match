@@ -9,6 +9,7 @@ describe('環境変数', () => {
 
     expect(env).toEqual({
       AI_PROVIDER: 'mock',
+      MOCK_AI_FIXTURE: 'default',
       OPENAI_API_KEY: '',
       OPENAI_TEXT_MODEL: '',
       PERSISTENCE_PROVIDER: 'memory',

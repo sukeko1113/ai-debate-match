@@ -18,6 +18,12 @@ const intFromString = (fallback: number) =>
 
 const envSchema = z.object({
   AI_PROVIDER: z.enum(['mock', 'openai']).default('mock'),
+  /**
+   * Mock が読む fixture のファイル名（設計 §15.7）。既定は `default`。
+   * 設計 §22 の表には無い。論点0件の筋書き（設計 §10）は通常系と同じ位置で
+   * 別の出力を要求するため、fixture を差し替える口が要る。
+   */
+  MOCK_AI_FIXTURE: z.string().regex(/^[A-Za-z0-9_-]+$/).default('default'),
   OPENAI_API_KEY: z.string().default(''),
   OPENAI_TEXT_MODEL: z.string().default(''),
   PERSISTENCE_PROVIDER: z.enum(['memory', 'postgres']).default('memory'),

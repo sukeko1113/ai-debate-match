@@ -129,3 +129,23 @@ export type AuditLogRecord = {
   /** ISO8601。時計は Repository の側にある（設計 §11 reducer は純関数） */
   readonly createdAt: string;
 };
+
+/**
+ * 設計 §13 judging_runs。UNIQUE(match_id, rubric_version)。
+ *
+ * 同じ rubric で二度採点しない（設計 §21.2）。採点基準を変えたときだけ行が増える。
+ */
+export type JudgingRunRecord = {
+  readonly id: string;
+  readonly matchId: string;
+  /** 採点基準の版。同じ版で二重に作らない */
+  readonly rubricVersion: string;
+  readonly provider: string;
+  readonly model: string;
+  readonly status: string;
+  /** 設計 §16.3 の match と newArgumentFindings */
+  readonly resultJson: unknown;
+  /** 設計 §16.3 の learnerReport */
+  readonly learnerReportJson: unknown;
+  readonly needsReview: boolean;
+};

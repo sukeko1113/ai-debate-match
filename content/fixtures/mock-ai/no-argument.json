@@ -22,7 +22,6 @@
         }
       ]
     },
-
     {
       "role": "cx_question",
       "sectionNo": 4,
@@ -59,7 +58,6 @@
         }
       ]
     },
-
     {
       "role": "cx_question",
       "sectionNo": 6,
@@ -96,7 +94,6 @@
         }
       ]
     },
-
     {
       "role": "attack",
       "sectionNo": 7,
@@ -112,7 +109,6 @@
         }
       ]
     },
-
     {
       "role": "cx_question",
       "sectionNo": 8,
@@ -149,7 +145,6 @@
         }
       ]
     },
-
     {
       "role": "defense",
       "sectionNo": 10,
@@ -166,7 +161,6 @@
         }
       ]
     },
-
     {
       "role": "summary",
       "sectionNo": 11,
@@ -184,6 +178,120 @@
         {
           "speechText": "本日の争点は受け皿と費用です。肯定側に有効な立論が無く、制度を変える理由が示されていません。",
           "comparisons": []
+        }
+      ]
+    },
+    {
+      "role": "judge",
+      "outputs": [
+        {
+          "match": {
+            "winner": "negative",
+            "confidence": null,
+            "needsReview": true,
+            "hasValidConstructive": {
+              "affirmative": false,
+              "negative": true
+            },
+            "votingIssues": [
+              {
+                "title": "地域の受け皿と費用",
+                "winner": "negative",
+                "reason": "否定側の2論点に対する反論が成立せず、争点は否定側に残った。",
+                "sectionIds": [
+                  3,
+                  7,
+                  10
+                ]
+              }
+            ],
+            "axes": [
+              {
+                "axis": "logic",
+                "score": 8,
+                "max": 25,
+                "reason": "肯定側に立論が無く、論題を肯定する筋道が示されていない。",
+                "sectionIds": [
+                  3,
+                  12
+                ]
+              },
+              {
+                "axis": "evidence",
+                "score": 5,
+                "max": 20,
+                "reason": "登録カードの引用が否定側に限られる。",
+                "sectionIds": [
+                  3
+                ]
+              },
+              {
+                "axis": "rebuttal",
+                "score": 6,
+                "max": 20,
+                "reason": "反論の対象が片側にしか存在しない。",
+                "sectionIds": [
+                  7,
+                  10
+                ]
+              },
+              {
+                "axis": "cx",
+                "score": 7,
+                "max": 20,
+                "reason": "質疑は成立しているが、立論が無いため論点を軸にした追及になっていない。",
+                "sectionIds": [
+                  2,
+                  4,
+                  8
+                ]
+              }
+            ]
+          },
+          "newArgumentFindings": [],
+          "learnerReport": {
+            "seat": "A1",
+            "sectionsCovered": [
+              1,
+              2
+            ],
+            "axes": [
+              {
+                "axis": "constructive_structure",
+                "score": 0,
+                "max": 25,
+                "reason": "立論が提出されていない。",
+                "sectionIds": [
+                  1
+                ]
+              },
+              {
+                "axis": "evidence_use",
+                "score": 0,
+                "max": 20,
+                "reason": "立論が無いため、Evidence を使う場面が無かった。",
+                "sectionIds": [
+                  1
+                ]
+              },
+              {
+                "axis": "cx_response",
+                "score": 8,
+                "max": 20,
+                "reason": "質疑には答えているが、自陣の立論に結びつけられていない。",
+                "sectionIds": [
+                  2
+                ]
+              }
+            ],
+            "strengths": [
+              "質疑の時間には応答している。"
+            ],
+            "nextActions": [
+              "まず立論を1件、時間内に提出する。",
+              "論点のタイトルと理由を先に決めてから本文を書く。"
+            ]
+          }
         }
       ]
     }

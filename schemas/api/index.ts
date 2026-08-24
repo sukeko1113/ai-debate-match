@@ -9,6 +9,12 @@ export {
 } from './envelope';
 export { apiErrorCodeSchema, type ApiErrorCode } from './error-codes';
 export {
+  PROVISIONAL_NOTICE,
+  judgeResultSchema,
+  parseJudgeResult,
+  type JudgeResult,
+} from './judge-result';
+export {
   currentActionSchema,
   flowSheetRowSchema,
   matchSnapshotSchema,

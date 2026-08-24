@@ -33,7 +33,8 @@ import {
 
 /** input から呼び出し位置を読む。fixture はセクション番号と往復位置で引く */
 const inputSectionSchema = z.object({
-  sectionNo: z.number().int().min(1),
+  /** 判定の入力にはセクション番号が無い。role だけで引く */
+  sectionNo: z.number().int().min(1).nullish(),
   cxTurnIndex: z.number().int().min(0).nullish(),
 });
 
@@ -57,9 +58,11 @@ export class MockDebateProvider implements DebateAiProvider {
     this.fixture = parseMockAiFixture(fixture);
   }
 
-  private nextOutput(role: AiRole, sectionNo: number, cxTurnIndex: number | null): unknown {
+  private nextOutput(role: AiRole, sectionNo: number | null, cxTurnIndex: number | null): unknown {
+    // セクション番号を持たない役割（判定）は role だけで引く
     const candidates = this.fixture.responses.filter(
-      (response) => response.role === role && response.sectionNo === sectionNo,
+      (response) =>
+        response.role === role && (sectionNo === null || response.sectionNo === sectionNo),
     );
     // 往復位置を指定した行を先に見る。CXの往復と再試行の並びを混ぜないため（設計 §7 / §15.5）
     const entry =
@@ -69,11 +72,11 @@ export class MockDebateProvider implements DebateAiProvider {
     if (entry === undefined) {
       throw new AiProviderError(
         'unavailable',
-        `Mock fixture に該当の出力が無い（role=${role}, sectionNo=${sectionNo}, cxTurnIndex=${String(cxTurnIndex)}, fixture=${this.fixture.code}）。設計 §15.7`,
+        `Mock fixture に該当の出力が無い（role=${role}, sectionNo=${String(sectionNo)}, cxTurnIndex=${String(cxTurnIndex)}, fixture=${this.fixture.code}）。設計 §15.7`,
       );
     }
 
-    const key = `${role}:${sectionNo}:${String(entry.cxTurnIndex)}`;
+    const key = `${role}:${String(entry.sectionNo)}:${String(entry.cxTurnIndex)}`;
     const called = this.calls.get(key) ?? 0;
     this.calls.set(key, called + 1);
     return entry.outputs[Math.min(called, entry.outputs.length - 1)];
@@ -84,13 +87,13 @@ export class MockDebateProvider implements DebateAiProvider {
     if (!section.success) {
       throw new AiProviderError(
         'unavailable',
-        `Mock Provider には sectionNo を含む入力が必要である（role=${request.role}）。設計 §15.7`,
+        `Mock Provider の入力は sectionNo を持てる形でなければならない（role=${request.role}）。設計 §15.7`,
       );
     }
 
     const output = this.nextOutput(
       request.role,
-      section.data.sectionNo,
+      section.data.sectionNo ?? null,
       section.data.cxTurnIndex ?? null,
     );
     const raw = JSON.stringify(output);

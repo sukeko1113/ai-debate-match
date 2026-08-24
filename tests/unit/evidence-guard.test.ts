@@ -44,14 +44,24 @@ function sourceFilesUnder(dir: string): string[] {
 
 describe('AI出力の schema は Evidence の中身を受け取らない（設計 §15.6）', () => {
   it('AI出力の schema には出典・引用・発行日の項目が無い', () => {
-    // 項目が無ければ、AIが出典を作って返す経路そのものが存在しない
+    // 項目が無ければ、AIが出典を作って返す経路そのものが存在しない。
+    //
+    // 例外は judge の `quote` だけである。これは Evidence の引用ではなく、
+    // **試合中の発話からの引用**であり（設計 §9.2 newArgumentFindings）、
+    // 原文に含まれることを `findingViolations` が確かめる。作らせていない。
+    const allowed: Readonly<Record<string, readonly string[]>> = {
+      'schemas/ai-output/judge.ts': ['quote'],
+    };
+
     const offenders = sourceFilesUnder(path.join(rootDir, 'schemas', 'ai-output'))
       .map((file) => ({ file, text: readFileSync(file, 'utf8') }))
-      .flatMap(({ file, text }) =>
-        CARD_CONTENT_FIELDS.filter((field) => text.includes(`${field}:`)).map(
-          (field) => `${path.relative(rootDir, file)}: ${field}`,
-        ),
-      );
+      .flatMap(({ file, text }) => {
+        const relative = path.relative(rootDir, file);
+        const exempt = allowed[relative] ?? [];
+        return CARD_CONTENT_FIELDS.filter(
+          (field) => text.includes(`${field}:`) && !exempt.includes(field),
+        ).map((field) => `${relative}: ${field}`);
+      });
     expect(offenders).toEqual([]);
   });
 

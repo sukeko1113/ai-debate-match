@@ -24,7 +24,11 @@ export const mockAiResponseSchema = z.strictObject({
     'summary',
     'judge',
   ]),
-  sectionNo: z.number().int().min(1),
+  /**
+   * 競技セクション番号。**判定（role='judge'）は特定のセクションに属さない**ので省略する。
+   * 省略した行はセクションを区別せず、role だけで引かれる。
+   */
+  sectionNo: z.number().int().min(1).nullable().default(null),
   /** CXの往復位置。省略すると往復を区別しない */
   cxTurnIndex: z.number().int().min(0).nullable().default(null),
   outputs: z.array(z.unknown()).min(1),

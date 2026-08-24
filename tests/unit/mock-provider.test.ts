@@ -127,20 +127,24 @@ describe('同梱の fixture（content/fixtures/mock-ai/default.json）', () => {
   );
 
   it('検証を通り、AIが担当する競技セクションを網羅している', () => {
+    // 判定はセクションを持たない（設計 §16）ので、セクション番号のある行だけを見る
     const speechSections = fixture.responses
-      .filter((response) => !response.role.startsWith('cx_'))
-      .map((response) => response.sectionNo)
+      .filter((response) => !response.role.startsWith('cx_') && response.role !== 'judge')
+      .map((response) => response.sectionNo ?? 0)
       .sort((left, right) => left - right);
     expect(speechSections).toEqual([3, 5, 7, 9, 10, 11, 12]);
+
+    // 判定は1件だけ用意する（設計 §17 の「判定 1回」）
+    expect(fixture.responses.filter((response) => response.role === 'judge')).toHaveLength(1);
 
     // 質疑は第2・4・6・8セクション。第2セクションの回答は人間なので質問だけを持つ
     const questions = fixture.responses
       .filter((response) => response.role === 'cx_question')
-      .map((response) => response.sectionNo)
+      .map((response) => response.sectionNo ?? 0)
       .sort((left, right) => left - right);
     const answers = fixture.responses
       .filter((response) => response.role === 'cx_answer')
-      .map((response) => response.sectionNo)
+      .map((response) => response.sectionNo ?? 0)
       .sort((left, right) => left - right);
     expect(questions).toEqual([2, 4, 6, 8]);
     expect(answers).toEqual([4, 6, 8]);

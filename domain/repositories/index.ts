@@ -12,6 +12,7 @@ export type {
   CxTurnRecord,
   EvidenceCardRecord,
   EvidenceUseRecord,
+  JudgingRunRecord,
   SpeechRecord,
   SpeechSource,
 } from './records';

@@ -15,13 +15,16 @@ export function StepButton({
   path,
   label,
   pendingLabel,
+  successHref,
 }: {
   readonly matchId: string;
   readonly version: number;
-  /** `start` / `advance` / `skip-prep` */
+  /** `start` / `advance` / `skip-prep` / `judge` */
   readonly path: string;
   readonly label: string;
   readonly pendingLabel: string;
+  /** 成功したら別の画面へ移る場合の遷移先。省略すると同じ画面を読み直す */
+  readonly successHref?: string;
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +47,11 @@ export function StepButton({
         setError(body.error.message);
         return;
       }
-      router.refresh();
+      if (successHref === undefined) {
+        router.refresh();
+        return;
+      }
+      router.push(successHref);
     } catch {
       setError('通信に失敗しました。表示を更新して再試行してください。');
     } finally {

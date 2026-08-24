@@ -241,6 +241,136 @@
           "concessionKey": "AD1"
         }
       ]
+    },
+    {
+      "role": "judge",
+      "outputs": [
+        {
+          "match": {
+            "winner": "affirmative",
+            "confidence": 0.68,
+            "needsReview": false,
+            "hasValidConstructive": {
+              "affirmative": true,
+              "negative": true
+            },
+            "votingIssues": [
+              {
+                "title": "生徒の時間の使い方",
+                "winner": "affirmative",
+                "reason": "肯定側は選択制が時間の使い道を生徒に返すと示し、否定側の反論に再構築で答えた。",
+                "sectionIds": [
+                  1,
+                  5,
+                  9
+                ]
+              },
+              {
+                "title": "地域の受け皿",
+                "winner": "negative",
+                "reason": "否定側は指導者の総数が増えない点を最後まで維持した。",
+                "sectionIds": [
+                  3,
+                  7,
+                  10
+                ]
+              }
+            ],
+            "axes": [
+              {
+                "axis": "logic",
+                "score": 18,
+                "max": 25,
+                "reason": "主張・理由・根拠の順は保たれているが、比較の言及が第11セクションに限られる。",
+                "sectionIds": [
+                  1,
+                  3,
+                  11
+                ]
+              },
+              {
+                "axis": "evidence",
+                "score": 13,
+                "max": 20,
+                "reason": "登録済みカードを立論で用いたが、再構築での追加引用が少ない。",
+                "sectionIds": [
+                  1,
+                  9
+                ]
+              },
+              {
+                "axis": "rebuttal",
+                "score": 14,
+                "max": 20,
+                "reason": "双方が相手の第1論点に応答したが、第2論点への言及が薄い。",
+                "sectionIds": [
+                  5,
+                  7,
+                  9,
+                  10
+                ]
+              },
+              {
+                "axis": "cx",
+                "score": 14,
+                "max": 20,
+                "reason": "質問は1問1論点で焦点が定まっている。回答に結論先行でないものがある。",
+                "sectionIds": [
+                  2,
+                  4,
+                  6,
+                  8
+                ]
+              }
+            ]
+          },
+          "newArgumentFindings": [],
+          "learnerReport": {
+            "seat": "A1",
+            "sectionsCovered": [
+              1,
+              2
+            ],
+            "axes": [
+              {
+                "axis": "constructive_structure",
+                "score": 18,
+                "max": 25,
+                "reason": "論点のタイトルと本文が対応している。理由の具体性をもう一段足せる。",
+                "sectionIds": [
+                  1
+                ]
+              },
+              {
+                "axis": "evidence_use",
+                "score": 13,
+                "max": 20,
+                "reason": "登録カードを選べているが、引用と主張の結びつきの説明が短い。",
+                "sectionIds": [
+                  1
+                ]
+              },
+              {
+                "axis": "cx_response",
+                "score": 13,
+                "max": 20,
+                "reason": "直接答えられている回答が多い。1件は結論より先に説明が来ている。",
+                "sectionIds": [
+                  2
+                ]
+              }
+            ],
+            "strengths": [
+              "論点のタイトルが短く、何を主張するのかが分かる。",
+              "質疑で相手の質問から逃げていない。"
+            ],
+            "nextActions": [
+              "立論の理由に、数値か具体例をひとつ足す。",
+              "回答は最初の一文で結論を述べる。"
+            ]
+          }
+        }
+      ]
     }
   ]
 }

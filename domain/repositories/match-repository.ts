@@ -7,6 +7,7 @@ import type {
   CxTurnRecord,
   EvidenceCardRecord,
   EvidenceUseRecord,
+  JudgingRunRecord,
   SpeechRecord,
 } from './records';
 
@@ -77,4 +78,9 @@ export interface MatchRepository {
   /** (match_id, slot_index, COALESCE(cx_turn_index,-1), role, attempt) が一意（設計 §13.1） */
   insertAiRun(record: AiRunRecord): Promise<void>;
   listAiRuns(matchId: string): Promise<readonly AiRunRecord[]>;
+
+  /** UNIQUE(match_id, rubric_version)。同じ採点基準で二度作らない（設計 §13 / §21.2） */
+  insertJudgingRun(record: JudgingRunRecord): Promise<void>;
+  findJudgingRun(matchId: string, rubricVersion: string): Promise<JudgingRunRecord | null>;
+  listJudgingRuns(matchId: string): Promise<readonly JudgingRunRecord[]>;
 }

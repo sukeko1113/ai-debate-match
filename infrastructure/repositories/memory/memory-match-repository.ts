@@ -9,6 +9,7 @@ import {
   type CxTurnRecord,
   type EvidenceCardRecord,
   type EvidenceUseRecord,
+  type JudgingRunRecord,
   type MatchRepository,
   type SpeechRecord,
 } from '@/domain/repositories';
@@ -39,6 +40,7 @@ type Tables = {
   cxTurns: CxTurnRecord[];
   evidenceUses: EvidenceUseRecord[];
   aiRuns: AiRunRecord[];
+  judgingRuns: JudgingRunRecord[];
 };
 
 /** 行を持ち出したあとの書き換えが保存内容に波及しないよう、出入りで複製する */
@@ -57,6 +59,7 @@ export class MemoryMatchRepository implements MatchRepository {
     cxTurns: [],
     evidenceUses: [],
     aiRuns: [],
+    judgingRuns: [],
   };
 
   private autoId = 0;
@@ -375,6 +378,34 @@ export class MemoryMatchRepository implements MatchRepository {
 
   async listAiRuns(matchId: string): Promise<readonly AiRunRecord[]> {
     return this.tables.aiRuns.filter((row) => row.matchId === matchId).map(copy);
+  }
+
+  async insertJudgingRun(record: JudgingRunRecord): Promise<void> {
+    this.requireMatch(record.matchId);
+
+    // UNIQUE(match_id, rubric_version)（設計 §13）。同じ採点基準で二度採点しない
+    const duplicate = this.tables.judgingRuns.some(
+      (row) => row.matchId === record.matchId && row.rubricVersion === record.rubricVersion,
+    );
+    if (duplicate) {
+      throw new RepositoryConflictError(
+        'judging_runs_uniq',
+        `同じ rubric_version の判定が既にある（rubric_version=${record.rubricVersion}）。設計 §13`,
+        { matchId: record.matchId, rubricVersion: record.rubricVersion },
+      );
+    }
+    this.tables.judgingRuns.push(copy(record));
+  }
+
+  async findJudgingRun(matchId: string, rubricVersion: string): Promise<JudgingRunRecord | null> {
+    const found = this.tables.judgingRuns.find(
+      (row) => row.matchId === matchId && row.rubricVersion === rubricVersion,
+    );
+    return found === undefined ? null : copy(found);
+  }
+
+  async listJudgingRuns(matchId: string): Promise<readonly JudgingRunRecord[]> {
+    return this.tables.judgingRuns.filter((row) => row.matchId === matchId).map(copy);
   }
 }
 

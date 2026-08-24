@@ -253,6 +253,33 @@ export default async function MatchRoomPage({
         </section>
       )}
 
+      {snapshot.currentAction === 'judge' && (
+        <section aria-labelledby="judge-heading">
+          <h2 id="judge-heading">判定する</h2>
+          <p>
+            全12セクションが終わりました。暫定判定と学習者レポートを作ります（設計 §16）。
+            この判定はAIによる暫定評価であり、公式ジャッジではありません。
+          </p>
+          <StepButton
+            matchId={snapshot.id}
+            version={snapshot.version}
+            path="judge"
+            label="判定を実行する"
+            pendingLabel="判定しています…"
+            successHref={`/matches/${snapshot.id}/result`}
+          />
+        </section>
+      )}
+
+      {snapshot.currentAction === 'view_result' && (
+        <section aria-labelledby="result-heading">
+          <h2 id="result-heading">判定が終わりました</h2>
+          <p>
+            <Link href={`/matches/${snapshot.id}/result`}>結果を見る</Link>
+          </p>
+        </section>
+      )}
+
       {snapshot.currentAction === 'skip_prep' && (
         <section aria-labelledby="prep-heading">
           <h2 id="prep-heading">準備時間</h2>

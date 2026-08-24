@@ -4,6 +4,8 @@ import { POST as advanceRoute } from '@/app/api/matches/[id]/advance/route';
 import { POST as constructiveRoute } from '@/app/api/matches/[id]/constructive/route';
 import { POST as evidenceCardsRoute } from '@/app/api/matches/[id]/evidence-cards/route';
 import { GET as getMatchRoute } from '@/app/api/matches/[id]/route';
+import { GET as exportRoute } from '@/app/api/matches/[id]/export/route';
+import { GET as resultRoute } from '@/app/api/matches/[id]/result/route';
 import { POST as skipPrepRoute } from '@/app/api/matches/[id]/skip-prep/route';
 import { POST as startRoute } from '@/app/api/matches/[id]/start/route';
 import { POST as createMatchRoute } from '@/app/api/matches/route';
@@ -335,5 +337,42 @@ describe('POST /api/matches/:id/evidence-cards（設計 §14.3 / §15.6）', () 
       context(created.id),
     );
     expect(response.status).toBe(409);
+  });
+});
+
+describe('GET /api/matches/:id/result（設計 §14.3 / §14.4）', () => {
+  it('判定前は 409 RESULT_NOT_READY である', async () => {
+    const created = await createMatch();
+    const response = await resultRoute(new Request('http://localhost/api'), context(created.id));
+    expect(response.status).toBe(409);
+
+    const body = await envelopeOf<unknown>(response);
+    expect(body.ok).toBe(false);
+    if (body.ok) return;
+    expect(body.error.code).toBe('RESULT_NOT_READY');
+  });
+
+  it('存在しない match は 404 である', async () => {
+    const response = await resultRoute(new Request('http://localhost/api'), context('match_none'));
+    expect(response.status).toBe(404);
+  });
+});
+
+describe('GET /api/matches/:id/export（設計 §14.3 / §19）', () => {
+  it('判定前でも記録を返し、鍵と prompt を含めない', async () => {
+    const created = await createMatch();
+    const response = await exportRoute(new Request('http://localhost/api'), context(created.id));
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('content-type')).toContain('application/json');
+
+    const text = await response.text();
+    expect(text).toContain('公式ジャッジではありません');
+    expect(text).not.toContain('OPENAI_API_KEY');
+    expect(text).not.toContain('systemPrompt');
+
+    const body = JSON.parse(text) as { result: unknown; match: { id: string } };
+    expect(body.match.id).toBe(created.id);
+    expect(body.result).toBeNull();
   });
 });

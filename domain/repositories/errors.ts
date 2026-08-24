@@ -25,6 +25,8 @@ export type RepositoryConstraint =
   | 'ai_runs_uniq'
   /** UNIQUE(match_id, argument_key)（設計 §13 arguments） */
   | 'arguments_match_key_uniq'
+  /** UNIQUE(match_id, rubric_version)（設計 §13 judging_runs） */
+  | 'judging_runs_uniq'
   /** PK(id)（設計 §13 evidence_cards） */
   | 'evidence_cards_pkey'
   /** PK(match_id) */

@@ -1,6 +1,6 @@
 # P9: Judge & learner report（暫定判定・学習者レポート・Result画面）
 
-> **担当ブランチ**: （未着手）
+> **担当ブランチ**: `claude/p9-judge-learner-report`
 > 着手時にこの欄へ自分のブランチ名を書いてコミットする。既に埋まっていれば、
 > 別のセッションが着手済みである（CLAUDE.md「着手前の確認」）。
 
@@ -55,7 +55,7 @@ Result 画面で読めること**が到達点である。
 
 ### 3. 判定の実行（`application/judge-match/`）
 
-- `completed` のときだけ動く。それ以外は 409（設計 §11 / §14.4）
+- `completed` のときだけ動く。それ以外は `INVALID_TRANSITION`（設計 §14.4 では 400）
 - **同期実行**である。ジョブキューを使わない（CLAUDE.md 禁止事項）
 - 入力は全 speech・cx_turns・フローシート・Evidence（設計 §15.3 Judge の行）
 - 結果は `judging_runs` に保存する。`UNIQUE(match_id, rubric_version)` で**二重作成されない**（設計 §13 / §21.2）
@@ -123,7 +123,7 @@ OpenAI Text Provider（P10）。E2Eの12シナリオと10回完走（P11）。
 4. 4軸の max 合計が85でない出力、3軸の max 合計が65でない出力が棄却される
 5. `newArgumentFindings[].quote` が原文に含まれない出力が棄却される（設計 §21.1）
 6. `newArgumentFindings` の該当箇所が判定材料から除外され、除外が勝敗を左右したら `needsReview=true`
-7. `completed` 以外で `POST /judge` を呼ぶと 409 になる
+7. `completed` 以外で `POST /judge` を呼ぶと 400 `INVALID_TRANSITION` になる
 8. 同じ `rubric_version` で judge を2回呼んでも `judging_runs` は1件のままである（設計 §21.2）
 9. `GET /result` は `judged` のときだけ 200 を返し、それ以外は 409 `RESULT_NOT_READY`
 10. 通常系で完走し、85点と65点が出る（integration）
@@ -133,6 +133,19 @@ OpenAI Text Provider（P10）。E2Eの12シナリオと10回完走（P11）。
 13. 判定を含めたAI実行回数が設計 §17 と一致する（通常系29、論点0件24）
 14. Result 画面と export JSON の両方に『AIによる暫定評価』が出る（付録D）
 15. `export` に鍵・prompt 全文が含まれない
+
+## 実装中に判断したこと
+
+**1. `needsReview` はサーバが決め、AIの値を下げない。** 設計 §16.3 は
+「`confidence < 0.65`、Evidence違反、New Argument除外が勝敗を左右した場合」と条件を挙げているが、
+『勝敗を左右した』を1回の判定から機械的に決める方法は無い。**除外した箇所が勝者側の発話にある**ときを
+その条件とし、理由を配列（`needsReviewReasons`）で残して画面と export に出す。
+AIが `needsReview=true` と言った場合はそのまま残す（サーバは上げられるが下げられない）。
+
+**2. `arguments.state` の遷移は P11 へ送る。** 判定の入力は `speeches.structured_json` の
+`refutations` / `defenses` / `comparisons` から作れるため、フローシートの状態列を使わずに済んだ。
+`attacked` / `defended` / `dropped` / `compared` へ移す条件は設計に定義が無く、
+推測で実装すると判定材料が二重になる。
 
 ## 完了報告に書くこと
 

@@ -48,7 +48,30 @@ pnpm build
 
 APIキーが無くても、Mock AIで全テストが通ること。CIは常に `AI_PROVIDER=mock`。
 
-実モデルを使う確認は `pnpm smoke:openai` として手動実行する。CIには入れない。
+### 実モデルで確かめる（手動スモーク）
+
+CIには入れない。**1回あたり実費がかかる。**
+
+```bash
+AI_PROVIDER=openai \
+OPENAI_TEXT_MODEL=<使うモデル名> \
+OPENAI_API_KEY=<鍵> \
+pnpm smoke:openai
+```
+
+1試合を最後まで進め、7役割（立論・質疑の質問と回答・反論・再構築・サマリー・判定）が
+それぞれ1回は通ることと、AI実行回数・出力トークンが設計 §17 の上限の内側に収まることを見る。
+役割ごとの実行回数と usage は実行ログに JSON で出る。
+
+3つの環境変数が揃っていなければ、外部を1回も呼ばずに skip する。
+**鍵はコミットしない。** ログを貼るときは鍵が出ていないことを確認する。
+
+| `AI_PROVIDER` | `OPENAI_TEXT_MODEL` | `OPENAI_API_KEY` | 動作 |
+| --- | --- | --- | --- |
+| `mock`（既定） | 何でも | 何でも | Mock。外部呼出なし |
+| `openai` | 未設定 | 何でも | Mock へ戻る |
+| `openai` | 設定 | 未設定 | 起動時に失敗する（外部は呼ばない） |
+| `openai` | 設定 | 設定 | OpenAI を呼ぶ |
 
 ## 動かす
 
@@ -62,7 +85,8 @@ pnpm build && pnpm start
 | --- | --- | --- |
 | Start | `/` | 目的の説明と、Setup への導線 |
 | Setup | `/matches/new` | 表示名と難易度を決めて試合を作る。論題のseed Evidenceが取り込まれる |
-| Match Room | `/matches/[id]` | 進行の表示、立論の入力、フローシート、進捗 |
+| Match Room | `/matches/[id]` | 進行の表示、立論の入力、質疑の回答、フローシート、進捗 |
+| Result | `/matches/[id]/result` | 暫定判定85点、学習者レポート65点、根拠、JSON書き出し |
 
 進行はサーバだけが決める。画面は `MatchSnapshot`（設計 付録B）を読むだけで、
 セクション順・秒数・席・CX往復数を持たない。
@@ -73,8 +97,9 @@ pnpm build && pnpm start
 > （再読込は同じスロット・同じ保存済み内容へ戻ります）。
 > 永続化が必要になったら Postgres adapter を足します（`docs/ADR/0001-persistence-supabase-postgres.md`）。
 
-現時点で動くのは、試合の作成から肯定側A1の立論提出までです。
-AIの生成を伴うスロットに来ると「後続のPRで追加される」と表示して停止します。
+試合の作成から判定まで一通り動きます。第12セクションまで進むと Result 画面で
+暫定判定（85点）と学習者レポート（65点）を根拠つきで読め、JSONで書き出せます。
+**この判定はAIによる暫定評価であり、公式ジャッジではありません。**
 
 ## 進め方
 

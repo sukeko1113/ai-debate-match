@@ -50,7 +50,7 @@ export class MockDebateProvider implements DebateAiProvider {
   readonly promptVersion = PROMPT_VERSION;
 
   private readonly fixture: MockAiFixture;
-  /** (role, sectionNo) ごとの呼び出し回数。試行順に fixture を進める */
+  /** (matchId, role, sectionNo, cxTurnIndex) ごとの呼び出し回数。試行順に fixture を進める */
   private readonly calls = new Map<string, number>();
 
   /** 書く側の形をそのまま受け取り、検証して既定値を埋める（設計 §15.7） */
@@ -58,7 +58,23 @@ export class MockDebateProvider implements DebateAiProvider {
     this.fixture = parseMockAiFixture(fixture);
   }
 
-  private nextOutput(role: AiRole, sectionNo: number | null, cxTurnIndex: number | null): unknown {
+  /**
+   * 呼び出し位置の目印。**試合ごとに数える。**
+   *
+   * `idempotencyKey` は `match+slot+cxTurn+role+attempt`（設計 §15.1）なので、先頭が match_id である。
+   * 数え上げを試合で分けないと、同じサーバで2試合目を始めたときに fixture の並びが
+   * 途中から始まってしまう（E2E が1サーバで複数の試合を作る）。
+   */
+  private static matchIdOf(idempotencyKey: string): string {
+    return idempotencyKey.split(':')[0] ?? '';
+  }
+
+  private nextOutput(
+    matchId: string,
+    role: AiRole,
+    sectionNo: number | null,
+    cxTurnIndex: number | null,
+  ): unknown {
     // セクション番号を持たない役割（判定）は role だけで引く
     const candidates = this.fixture.responses.filter(
       (response) =>
@@ -76,7 +92,7 @@ export class MockDebateProvider implements DebateAiProvider {
       );
     }
 
-    const key = `${role}:${String(entry.sectionNo)}:${String(entry.cxTurnIndex)}`;
+    const key = `${matchId}:${role}:${String(entry.sectionNo)}:${String(entry.cxTurnIndex)}`;
     const called = this.calls.get(key) ?? 0;
     this.calls.set(key, called + 1);
     return entry.outputs[Math.min(called, entry.outputs.length - 1)];
@@ -92,6 +108,7 @@ export class MockDebateProvider implements DebateAiProvider {
     }
 
     const output = this.nextOutput(
+      MockDebateProvider.matchIdOf(request.idempotencyKey),
       request.role,
       section.data.sectionNo ?? null,
       section.data.cxTurnIndex ?? null,

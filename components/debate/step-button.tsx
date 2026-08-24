@@ -45,6 +45,10 @@ export function StepButton({
         | { ok: false; error: { message: string } };
       if (!body.ok) {
         setError(body.error.message);
+        // 失敗しても**サーバの状態は動いていることがある**。AIの生成が確定しなかった場合は
+        // active → generating_ai → paused まで進んでいる（設計 §11 AI_FAILED）。
+        // 画面を古いまま残すと、再読込するまで「もう一度生成する」が出ない。
+        router.refresh();
         return;
       }
       if (successHref === undefined) {

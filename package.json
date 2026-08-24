@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "smoke:openai": "vitest run --config vitest.smoke.config.mts",
-    "test:e2e": "playwright test"
+    "test:e2e": "pnpm build && playwright test"
   },
   "dependencies": {
     "next": "16.3.2",

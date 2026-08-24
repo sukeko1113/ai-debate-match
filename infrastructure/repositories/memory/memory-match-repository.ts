@@ -50,7 +50,7 @@ const copy = <T>(value: T): T => structuredClone(value) as T;
 const coalesceCxTurnIndex = (value: number | null): number => value ?? -1;
 
 export class MemoryMatchRepository implements MatchRepository {
-  private readonly tables: Tables = {
+  private tables: Tables = {
     matches: new Map(),
     auditLogs: [],
     arguments: [],
@@ -299,6 +299,25 @@ export class MemoryMatchRepository implements MatchRepository {
       );
     }
 
+    // 参照先が無い行を作らない（設計 §13 の FK）。Postgres 側は外部キーが同じことをする
+    const missing =
+      (record.speechId !== null &&
+        !this.tables.speeches.some((row) => row.id === record.speechId)) ||
+      (record.cxTurnId !== null &&
+        !this.tables.cxTurns.some((row) => row.id === record.cxTurnId)) ||
+      !this.tables.evidenceCards.some((row) => row.id === record.evidenceCardId);
+    if (missing) {
+      throw new RepositoryConflictError(
+        'foreign_key_violation',
+        `参照先の行が無い（speech_id=${String(record.speechId)}, cx_turn_id=${String(record.cxTurnId)}, evidence_card_id=${record.evidenceCardId}）。設計 §13`,
+        {
+          speechId: record.speechId,
+          cxTurnId: record.cxTurnId,
+          evidenceCardId: record.evidenceCardId,
+        },
+      );
+    }
+
     // 部分一意索引。NULL の側は索引の対象外なので、非 NULL の側だけを見る（設計 §13.1）
     if (hasSpeech) {
       const duplicate = this.tables.evidenceUses.some(
@@ -406,6 +425,23 @@ export class MemoryMatchRepository implements MatchRepository {
 
   async listJudgingRuns(matchId: string): Promise<readonly JudgingRunRecord[]> {
     return this.tables.judgingRuns.filter((row) => row.matchId === matchId).map(copy);
+  }
+
+  /**
+   * demo reset（設計 §19）。この試合の行をすべて落とす。
+   * Postgres 側は `on delete cascade` が同じことをする。
+   */
+  async deleteMatch(matchId: string): Promise<boolean> {
+    const existed = this.tables.matches.delete(matchId);
+    this.tables.auditLogs = this.tables.auditLogs.filter((row) => row.matchId !== matchId);
+    this.tables.arguments = this.tables.arguments.filter((row) => row.matchId !== matchId);
+    this.tables.evidenceCards = this.tables.evidenceCards.filter((row) => row.matchId !== matchId);
+    this.tables.speeches = this.tables.speeches.filter((row) => row.matchId !== matchId);
+    this.tables.cxTurns = this.tables.cxTurns.filter((row) => row.matchId !== matchId);
+    this.tables.evidenceUses = this.tables.evidenceUses.filter((row) => row.matchId !== matchId);
+    this.tables.aiRuns = this.tables.aiRuns.filter((row) => row.matchId !== matchId);
+    this.tables.judgingRuns = this.tables.judgingRuns.filter((row) => row.matchId !== matchId);
+    return existed;
   }
 }
 

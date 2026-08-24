@@ -14,10 +14,12 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "smoke:openai": "vitest run --config vitest.smoke.config.mts",
+    "demo:reset": "node scripts/demo-reset.mts",
     "test:e2e": "pnpm build && playwright test"
   },
   "dependencies": {
     "next": "16.3.2",
+    "pg": "8.16.3",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "0.0.1",
@@ -26,6 +28,7 @@
   "devDependencies": {
     "@playwright/test": "1.62.1",
     "@types/node": "26.2.0",
+    "@types/pg": "8.15.6",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.4",
     "eslint": "9.39.5",

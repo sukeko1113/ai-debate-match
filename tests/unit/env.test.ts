@@ -12,6 +12,7 @@ describe('環境変数', () => {
       MOCK_AI_FIXTURE: 'default',
       OPENAI_API_KEY: '',
       OPENAI_TEXT_MODEL: '',
+      DATABASE_URL: '',
       PERSISTENCE_PROVIDER: 'memory',
       CLOCK_MODE: 'realtime',
       CX_EXCHANGES_PER_SECTION: 3,

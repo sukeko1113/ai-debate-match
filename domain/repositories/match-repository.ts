@@ -83,4 +83,10 @@ export interface MatchRepository {
   insertJudgingRun(record: JudgingRunRecord): Promise<void>;
   findJudgingRun(matchId: string, rubricVersion: string): Promise<JudgingRunRecord | null>;
   listJudgingRuns(matchId: string): Promise<readonly JudgingRunRecord[]>;
+
+  /**
+   * demo reset（設計 §19）。その試合の配下を**まとめて**消す。
+   * 見つからなければ false。HTTP の口は持たない（設計 §14.3 に delete が無い）。
+   */
+  deleteMatch(matchId: string): Promise<boolean>;
 }

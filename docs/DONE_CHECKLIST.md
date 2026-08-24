@@ -52,6 +52,20 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm test:e2e
 project ごとにサーバの設定が違う（`playwright.config.ts`）。fixture の差し替えも上限の引き下げも
 起動時に決まるため、1つのサーバでは賄えない。
 
+## 永続化（P12 / ADR 0001）
+
+既定は memory のままである（設計 §22）。`PERSISTENCE_PROVIDER=postgres` と `DATABASE_URL` を
+設定すると、**サーバを再起動しても試合が残る。**
+
+| 見るもの | 置き場所 |
+| --- | --- |
+| 両adapterが同じ契約を通る | `tests/support/repository-contract.ts`（Memory は `tests/unit/memory-repository.test.ts`、Postgres は `tests/integration/postgres-repository.test.ts`） |
+| §13 の13テーブルと §13.1 の部分一意索引 | `supabase/migrations/0001_init.sql` |
+| Postgres で17スロット完走＋判定＋接続の作り直し | `tests/integration/postgres-repository.test.ts` |
+| demo reset | `pnpm demo:reset <matchId>`（`scripts/demo-reset.mts`） |
+
+Postgres 側は `DATABASE_URL` があるときだけ走る。**無ければ skip する**（CI はDBを持たない）。
+
 ## まだ満たしていないもの
 
 | 項目 | 状態 |
@@ -59,6 +73,7 @@ project ごとにサーバの設定が違う（`playwright.config.ts`）。fixtu
 | 実モデルでの完走（設計 §23 G1 の「実モデル3/3」） | **未実行。** 鍵が要る。手順は `pnpm smoke:openai`（README） |
 | `arguments.state` の遷移 | **未実装。** フローシートの状態列は常に『提出済み』である。理由は下記 |
 | 実時間のカウントダウンと自動 `HUMAN_TIMEOUT` | **未実装。** manual の明示イベント（`POST /timeout`）だけがある |
+| Postgres の RLS・認証・`school_id`・保護者同意 | **未実装。** 設計 §13.1 が Phase 2 の別ADRと明記している。**そのため Postgres を実データで使わない**（P12） |
 
 ### `arguments.state` を実装していない理由
 

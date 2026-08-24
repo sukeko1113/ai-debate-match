@@ -72,15 +72,37 @@ export function buildDefenseOutputSchema(params: {
           { label: 'evidenceUses.argumentKey' },
         ) as unknown as z.ZodType<DefenseOutput['evidenceUses']>);
 
-  return z.strictObject({
-    speechText,
-    defenses: referenceArray(
-      params.ownKeys,
-      (argumentKey) => z.strictObject({ argumentKey, point }),
-      { minItems: 1, label: 'defenses.argumentKey' },
-    ),
-    evidenceUses,
-  }) as unknown as z.ZodType<DefenseOutput>;
+  return z
+    .strictObject({
+      speechText,
+      defenses: referenceArray(
+        params.ownKeys,
+        (argumentKey) => z.strictObject({ argumentKey, point }),
+        { minItems: 1, label: 'defenses.argumentKey' },
+      ),
+      evidenceUses,
+    })
+    .superRefine((output, ctx) => {
+      // 同じ論点で同じカードを2回使うと evidence_uses の部分一意索引に当たる（設計 §13.1）。
+      // 保存の途中で落ちると speech だけが残り、そのスロットから進めなくなる。
+      // 保存前＝再生成できる位置で落とす（設計 §15.5）。
+      const seen = new Map<string, number>();
+      output.evidenceUses.forEach((use, position) => {
+        const key = `${use.argumentKey}\u0000${use.evidenceCardId}`;
+        const first = seen.get(key);
+        if (first !== undefined) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['evidenceUses', position],
+            message:
+              `同じ論点で同じ Evidence を2回使えない: ` +
+              `${use.argumentKey} / ${use.evidenceCardId}（${first}番目と重複。設計 §13.1）`,
+          });
+          return;
+        }
+        seen.set(key, position);
+      });
+    }) as unknown as z.ZodType<DefenseOutput>;
 }
 
 /** 既存clashの比較（設計 §15.3 Summary） */

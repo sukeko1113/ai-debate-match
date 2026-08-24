@@ -81,6 +81,33 @@ describe('Defense（設計 §15.3）', () => {
     expect(result.success).toBe(false);
   });
 
+  it('同じ論点で同じカードを2回使えない（設計 §13.1）', () => {
+    const result = schema.safeParse({
+      speechText: '再構築します。',
+      defenses: [{ argumentKey: 'AD1', point: '…' }],
+      evidenceUses: [
+        { argumentKey: 'AD1', evidenceCardId: 'ev_a' },
+        { argumentKey: 'AD1', evidenceCardId: 'ev_a' },
+      ],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('論点が違えば同じカードを使える', () => {
+    const result = schema.safeParse({
+      speechText: '再構築します。',
+      defenses: [
+        { argumentKey: 'AD1', point: '…' },
+        { argumentKey: 'AD2', point: '…' },
+      ],
+      evidenceUses: [
+        { argumentKey: 'AD1', evidenceCardId: 'ev_a' },
+        { argumentKey: 'AD2', evidenceCardId: 'ev_a' },
+      ],
+    });
+    expect(result.success).toBe(true);
+  });
+
   it('Evidence が1件も無い試合では evidenceUses は空だけ許す', () => {
     const noCards = buildDefenseOutputSchema({ ownKeys: AFFIRMATIVE, evidenceCardIds: [] });
     expect(

@@ -266,9 +266,21 @@ export function referenceViolations(
       defense.defenses.forEach((entry, position) =>
         checkKey(entry.argumentKey, allowedOwn, `defenses.${position}`),
       );
+
+      // 同じ論点で同じカードを2回使うと evidence_uses の部分一意索引に当たる（設計 §13.1）。
+      // 保存の途中で落ちると speech だけが残るため、保存前に落とす。
+      const seenUses = new Set<string>();
       defense.evidenceUses.forEach((entry, position) => {
         checkKey(entry.argumentKey, allowedOwn, `evidenceUses.${position}`);
         checkCard(entry.evidenceCardId, `evidenceUses.${position}`);
+
+        const useKey = `${entry.argumentKey}\u0000${entry.evidenceCardId}`;
+        if (seenUses.has(useKey)) {
+          problems.push(
+            `evidenceUses.${position}: 同じ論点で同じ Evidence を2回使えない（設計 §13.1）`,
+          );
+        }
+        seenUses.add(useKey);
       });
       return problems;
     }

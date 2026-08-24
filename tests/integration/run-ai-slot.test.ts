@@ -302,6 +302,48 @@ describe('Defense と Summary（設計 §15.3）', () => {
     });
   });
 
+  it('同じ Evidence を2回使う出力は、保存前に落ちて試合が詰まらない（設計 §13.1）', async () => {
+    const duplicated = {
+      speechText: '第1論点を再構築します。',
+      defenses: [{ argumentKey: 'AD1', point: '制度の趣旨から説明します。' }],
+      evidenceUses: [
+        { argumentKey: 'AD1', evidenceCardId: 'card_aff' },
+        { argumentKey: 'AD1', evidenceCardId: 'card_aff' },
+      ],
+    };
+    const good = {
+      speechText: '第1論点を再構築します。',
+      defenses: [{ argumentKey: 'AD1', point: '制度の趣旨から説明します。' }],
+      evidenceUses: [{ argumentKey: 'AD1', evidenceCardId: 'card_aff' }],
+    };
+
+    const scene = await sceneAt(9, [
+      { role: 'defense', sectionNo: 9, outputs: [duplicated, duplicated, duplicated, good] },
+    ]);
+    const first = await runAiSlot(scene.deps, {
+      matchId: scene.state.id,
+      expectedVersion: scene.state.version,
+    });
+
+    expect(first.ok).toBe(false);
+    // 保存に手を付けないまま paused になる。speech が残ると retry で
+    // UNIQUE(match_id, section_no) に当たり、そのスロットから永久に進めなくなる
+    expect(await scene.repository.listSpeeches(scene.state.id)).toHaveLength(0);
+    expect(await scene.repository.listEvidenceUses(scene.state.id)).toHaveLength(0);
+
+    const paused = await scene.repository.findMatch(scene.state.id);
+    expect(paused?.status).toBe('paused');
+    if (paused === null) return;
+
+    const retried = await retryAiSlot(scene.deps, {
+      matchId: scene.state.id,
+      expectedVersion: paused.version,
+    });
+    expect(retried.ok).toBe(true);
+    expect(await scene.repository.listSpeeches(scene.state.id)).toHaveLength(1);
+    expect(await scene.repository.listEvidenceUses(scene.state.id)).toHaveLength(1);
+  });
+
   it('Summary は双方の既存keyを比較する', async () => {
     const output = {
       speechText: '争点を整理します。',

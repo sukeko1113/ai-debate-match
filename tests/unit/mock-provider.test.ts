@@ -164,3 +164,30 @@ describe('同梱の fixture（content/fixtures/mock-ai/default.json）', () => {
     }
   });
 });
+
+describe('試合ごとに fixture の並びを数える（設計 §15.7）', () => {
+  it('別の試合は fixture の先頭から始まる', async () => {
+    const provider = createMockDebateProvider({
+      code: 'test',
+      responses: [
+        { role: 'attack', sectionNo: 5, outputs: [{ turn: 1 }, { turn: 2 }] },
+      ],
+    });
+    const schema = z.object({ turn: z.number() });
+    const call = (matchId: string, attempt: number) =>
+      provider.generate({
+        role: 'attack',
+        schema,
+        systemPrompt: '',
+        input: { sectionNo: 5 },
+        maxOutputTokens: 100,
+        timeoutMs: 1000,
+        idempotencyKey: `${matchId}:7:-1:attack:${attempt}`,
+      });
+
+    expect((await call('match_a', 1)).parsed.turn).toBe(1);
+    expect((await call('match_a', 2)).parsed.turn).toBe(2);
+    // 2試合目は1件目から。1試合目の呼び出し回数を引き継がない
+    expect((await call('match_b', 1)).parsed.turn).toBe(1);
+  });
+});

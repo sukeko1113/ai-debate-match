@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
 import { parseMockAiFixture, type MockAiFixture } from '@/schemas/ai-output';
+import { parseE2eHumanInput, type E2eHumanInput } from '@/schemas/human-input';
 import { parseMotion, type Motion } from '@/schemas/motion';
 import { parsePersona, type Persona } from '@/schemas/persona';
 import { parseRuleSet, type RuleSet } from '@/schemas/rule-set';
@@ -66,5 +67,20 @@ export function loadMockAiFixture(fileName: string = DEFAULT_MOCK_AI_FIXTURE_FIL
   return parseMockAiFixture(
     readContentJson(path.join('fixtures', 'mock-ai'), fileName),
     `content/fixtures/mock-ai/${fileName}.json`,
+  );
+}
+
+export const DEFAULT_E2E_HUMAN_INPUT_FILE = 'e2e-human-input';
+
+/**
+ * `content/fixtures/<fileName>.json` の人間入力を読む（設計 §15.7）。
+ * E2E が入力値をコードに持たないための1か所である。
+ */
+export function loadE2eHumanInput(
+  fileName: string = DEFAULT_E2E_HUMAN_INPUT_FILE,
+): E2eHumanInput {
+  return parseE2eHumanInput(
+    readContentJson('fixtures', fileName),
+    `content/fixtures/${fileName}.json`,
   );
 }

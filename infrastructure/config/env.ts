@@ -11,7 +11,17 @@ import { z } from 'zod';
 /** process.env と同じ形。test からは任意の record を渡せる */
 export type EnvSource = Record<string, string | undefined>;
 
-const isProductionRuntime = (source: EnvSource): boolean => source.NODE_ENV === 'production';
+/**
+ * デプロイ環境かどうか（設計 §6.4 / §22）。
+ *
+ * **`NODE_ENV=production` では判定しない。** E2E は production build に対して実行するため、
+ * build かどうかで判定すると E10（manual で prep が自動進行しないこと）を確かめられない。
+ * 判定はデプロイ環境変数で行う。
+ */
+const DEPLOYMENT_ENV_KEYS = ['VERCEL', 'VERCEL_ENV', 'RENDER', 'FLY_APP_NAME'] as const;
+
+const isDeployedRuntime = (source: EnvSource): boolean =>
+  DEPLOYMENT_ENV_KEYS.some((key) => (source[key] ?? '') !== '');
 
 const intFromString = (fallback: number) =>
   z.coerce.number().int().positive().default(fallback);
@@ -40,7 +50,7 @@ export type ServerEnv = z.infer<typeof envSchema>;
 
 /**
  * 環境変数を読み、既定値を埋めて返す。
- * production build では CLOCK_MODE=manual を許可しない（設計 §22 起動安全性）。
+ * デプロイ環境では CLOCK_MODE=manual を許可しない（設計 §22 起動安全性 / §6.4）。
  */
 export function loadServerEnv(source: EnvSource = process.env): ServerEnv {
   const parsed = envSchema.safeParse(source);
@@ -49,8 +59,8 @@ export function loadServerEnv(source: EnvSource = process.env): ServerEnv {
   }
 
   const env = parsed.data;
-  if (env.CLOCK_MODE === 'manual' && isProductionRuntime(source)) {
-    throw new Error('CLOCK_MODE=manual は production では使用できません（設計 §22）。');
+  if (env.CLOCK_MODE === 'manual' && isDeployedRuntime(source)) {
+    throw new Error('CLOCK_MODE=manual はデプロイ環境では使用できません（設計 §22）。');
   }
 
   return env;

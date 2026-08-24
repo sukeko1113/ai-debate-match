@@ -27,6 +27,9 @@
 | --- | --- |
 | `content/rule-sets/henda_20th_2025_42_v1.json` | 競技の進行・時間・席割り。順序と秒数はここだけが正 |
 | `content/motions/demo-motion-ja.json` | seed論題、論点0件時の固定質問、デモ用Evidenceカード |
+| `content/personas/{easy,normal,hard}.json` | 難易度ごとのプロンプト変数（設計 §15.4） |
+| `content/fixtures/mock-ai/*.json` | Mock AI の出力。筋書きごとに分ける（`content/fixtures/mock-ai/README.md`） |
+| `content/fixtures/e2e-human-input.json` | E2E が使う人間の入力。10回同じ結果になることを見るために固定する（設計 §15.7） |
 
 > **Evidenceカードはダミーです。**
 > `demo-motion-ja.json` の `seedEvidenceCards` は動作確認用で、実在の出典ではありません。
@@ -37,16 +40,41 @@
 
 ## 開発
 
+上から順に実行すれば、鍵が無い環境でも最後まで通ります。
+
 ```bash
+# 1. 依存を入れる（Node 20.9 以上、pnpm 10）
 pnpm install
+
+# 2. 環境変数はコピーするだけでよい。鍵は空のままで動く
+cp .env.example .env.local
+
+# 3. 品質ゲート（設計 §21.4）
 pnpm lint
 pnpm typecheck
-pnpm test
-pnpm test:e2e
+pnpm test          # unit / integration
 pnpm build
+pnpm test:e2e      # build してから Playwright（初回は pnpm exec playwright install chromium）
 ```
 
-APIキーが無くても、Mock AIで全テストが通ること。CIは常に `AI_PROVIDER=mock`。
+**APIキーが無くても、Mock AIで全テストが通ること。** CIは常に `AI_PROVIDER=mock`。
+
+E2E はシナリオごとにサーバの設定が違うため、4つのポート（3000〜3003）で起動します。
+`PORT` を変えると、その番号から4つを使います。
+
+| project | 設定 | シナリオ |
+| --- | --- | --- |
+| `default` | 既定 | E01 基本完走 / E02 再読込 / E03 二重送信 / E05 禁止Evidence / E09 決定性 / E10 prep / E12 同期advance |
+| `hardening` | `MOCK_AI_FIXTURE=hardening` | E04 AI障害 / E06 未知argument_key / E07 意味的New Argument |
+| `budget` | `MAX_AI_RUNS_PER_MATCH=5` | E08 budget |
+| `no-argument` | `MOCK_AI_FIXTURE=no-argument` | E11 立論未提出 |
+
+```bash
+pnpm exec playwright test --project=default          # 1つだけ動かす
+pnpm exec playwright test -g "E09"                   # IDで選ぶ
+```
+
+Done の11項目とテストの対応は `docs/DONE_CHECKLIST.md`。
 
 ### 実モデルで確かめる（手動スモーク）
 
@@ -101,7 +129,21 @@ pnpm build && pnpm start
 暫定判定（85点）と学習者レポート（65点）を根拠つきで読め、JSONで書き出せます。
 **この判定はAIによる暫定評価であり、公式ジャッジではありません。**
 
+フローシートの『状態』は、いまはすべて『提出済み』です。`attacked` / `dropped` などの
+遷移条件が設計に定義されていないためです（`docs/DONE_CHECKLIST.md` に理由を書いています）。
+
+## データの削除とログ（設計 §19）
+
+- **試合データはサーバのプロセス内メモリにあります**（`PERSISTENCE_PROVIDER=memory`）。
+  サーバを止めれば消えます。個別の削除口はまだありません（demo reset は Postgres adapter と一緒に入れます）。
+- 保存するのは `prompt_version` / `input_hash` / `usage` / `error_code` です。**prompt 全文は保存しません。**
+- `GET /api/matches/:id/export` の JSON に鍵も prompt も含めません。
+- **`AI_PROVIDER=openai` で実行した場合、送った内容は OpenAI 側のログに残ります。**
+  こちらから消せません。実データを使う前に、提供元の保持方針を確認してください。
+- 氏名・学校名・音声は扱いません。`playerName` は表示名だけです。
+
 ## 進め方
 
 1 PR ＝ 1縦切り。前のPRの受入基準が満たされるまで次に進まない。
 PR一覧と受入基準は設計書 §20。着手中の指示書は `docs/P*_INSTRUCTION.md`。
+Phase 1 の到達状況は `docs/DONE_CHECKLIST.md`。

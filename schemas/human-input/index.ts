@@ -16,3 +16,8 @@ export {
   type ConstructiveInputIssue,
   type ConstructiveParseResult,
 } from './parse';
+export {
+  e2eHumanInputSchema,
+  parseE2eHumanInput,
+  type E2eHumanInput,
+} from './e2e-fixture';

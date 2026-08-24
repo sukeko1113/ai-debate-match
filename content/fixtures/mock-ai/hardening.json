@@ -1,0 +1,437 @@
+{
+  "code": "mock_hardening_ja",
+  "responses": [
+    {
+      "role": "constructive",
+      "sectionNo": 3,
+      "outputs": [
+        {
+          "plan": null,
+          "arguments": [
+            {
+              "label": "地域の受け皿が足りない",
+              "body": "地域クラブの数と指導者は不足しています。全面移行すれば、活動を続けられない生徒が出ます。したがって現行制度を維持すべきです。",
+              "evidenceCardIds": []
+            },
+            {
+              "label": "家計の負担が増える",
+              "body": "地域クラブは会費が必要です。学校の部活動より費用が上がり、参加できない生徒が生まれます。",
+              "evidenceCardIds": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "attack",
+      "sectionNo": 5,
+      "outputs": [
+        {
+          "speechText": "肯定側の第1論点に反論します。増えた時間が学習に使われる保証はありません。さらに、地域社会との関係が失われるという新しい問題もあります。",
+          "refutations": [
+            {
+              "argumentKey": "AD1",
+              "point": "活動時間が減っても、その時間が学習に振り替わる根拠が示されていません。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "attack",
+      "sectionNo": 7,
+      "outputs": [
+        {
+          "speechText": "否定側の論点に反論します。",
+          "refutations": [
+            {
+              "argumentKey": "DA9",
+              "point": "存在しない論点を名乗っています。"
+            }
+          ]
+        },
+        {
+          "speechText": "否定側の論点に反論します。",
+          "refutations": [
+            {
+              "argumentKey": "DA9",
+              "point": "存在しない論点を名乗っています。"
+            }
+          ]
+        },
+        {
+          "speechText": "否定側の論点に反論します。",
+          "refutations": [
+            {
+              "argumentKey": "DA9",
+              "point": "存在しない論点を名乗っています。"
+            }
+          ]
+        },
+        {
+          "speechText": "否定側の第1論点に反論します。受け皿の不足は移行の期間を区切ることで解消できます。",
+          "refutations": [
+            {
+              "argumentKey": "DA1",
+              "point": "受け皿が足りないのは移行初期だけであり、5年の期間で解消できます。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "defense",
+      "sectionNo": 9,
+      "outputs": [
+        {
+          "speechText": "第1論点を再構築します。増えた時間の使い道は生徒が選べます。選択制であること自体が学習時間の確保につながります。",
+          "defenses": [
+            {
+              "argumentKey": "AD1",
+              "point": "選択制は時間の使い道を生徒に返す制度であり、学習時間の確保と両立します。"
+            }
+          ],
+          "evidenceUses": []
+        }
+      ]
+    },
+    {
+      "role": "defense",
+      "sectionNo": 10,
+      "outputs": [
+        {
+          "speechText": "第1論点を再構築します。移行期間を区切っても、指導者の総数が足りない事実は変わりません。",
+          "defenses": [
+            {
+              "argumentKey": "DA1",
+              "point": "期間を区切っても指導者の総数は増えず、受け皿の不足は残ります。"
+            }
+          ],
+          "evidenceUses": []
+        }
+      ]
+    },
+    {
+      "role": "summary",
+      "sectionNo": 11,
+      "outputs": [
+        {
+          "speechText": "本日の争点は、生徒の時間の使い方と地域の受け皿です。前者では肯定側が制度の選択肢を示しました。",
+          "comparisons": [
+            {
+              "affKey": "AD1",
+              "negKey": "DA1",
+              "winner": "affirmative"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "summary",
+      "sectionNo": 12,
+      "outputs": [
+        {
+          "speechText": "本日の争点は受け皿の有無です。制度を変える側が、移行後に活動を続けられる根拠を示せていません。",
+          "comparisons": [
+            {
+              "affKey": "AD1",
+              "negKey": "DA1",
+              "winner": "negative"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "cx_question",
+      "sectionNo": 2,
+      "outputs": [
+        {
+          "question": "学習時間が増えるという第1論点について、増えた時間が学習に使われる根拠はありますか。",
+          "targetArgumentKey": "AD1"
+        },
+        {
+          "question": "その根拠は、部活動をしていない生徒にも当てはまりますか。",
+          "targetArgumentKey": "AD1"
+        },
+        {
+          "question": "第1論点は、地域クラブへ移った生徒にも成り立ちますか。",
+          "targetArgumentKey": "AD1"
+        }
+      ]
+    },
+    {
+      "role": "cx_question",
+      "sectionNo": 4,
+      "outputs": [
+        {
+          "question": "受け皿が足りないという第1論点について、不足はどの地域でも同じですか。",
+          "targetArgumentKey": "DA1"
+        },
+        {
+          "question": "移行の期間を5年と区切っても、その不足は残りますか。",
+          "targetArgumentKey": "DA1"
+        },
+        {
+          "question": "指導者の確保は、制度の設計で改善できませんか。",
+          "targetArgumentKey": "DA1"
+        }
+      ]
+    },
+    {
+      "role": "cx_answer",
+      "sectionNo": 4,
+      "outputs": [
+        {
+          "answer": "地域によって差はありますが、全国の平均で不足しています。よって第1論点は成り立ちます。",
+          "concessionKey": null
+        },
+        {
+          "answer": "残ります。期間を延ばしても指導者の総数は増えないためです。",
+          "concessionKey": null
+        },
+        {
+          "answer": "制度の設計で一部は改善しますが、総数の不足は残ります。この点は認めます。",
+          "concessionKey": "DA1"
+        }
+      ]
+    },
+    {
+      "role": "cx_question",
+      "sectionNo": 6,
+      "outputs": [
+        {
+          "question": "先ほどの反論は、否定側の第1論点とどう結びつきますか。",
+          "targetArgumentKey": "DA1"
+        },
+        {
+          "question": "その結びつきは、資料で裏づけられていますか。",
+          "targetArgumentKey": "DA1"
+        },
+        {
+          "question": "反論が成り立たない場合、第1論点は残りますか。",
+          "targetArgumentKey": "DA1"
+        }
+      ]
+    },
+    {
+      "role": "cx_answer",
+      "sectionNo": 6,
+      "outputs": [
+        {
+          "answer": "受け皿の不足が続くという点で結びついています。結論として反論は成り立ちます。",
+          "concessionKey": null
+        },
+        {
+          "answer": "提出した資料の範囲で裏づけています。追加の資料は用意していません。",
+          "concessionKey": null
+        },
+        {
+          "answer": "反論が成り立たない場合でも、第1論点そのものは残ります。",
+          "concessionKey": null
+        }
+      ]
+    },
+    {
+      "role": "cx_answer",
+      "sectionNo": 8,
+      "outputs": [
+        {
+          "answer": "はい。第1論点を守るための反論です。結論として肯定側の立場は変わりません。",
+          "concessionKey": null
+        },
+        {
+          "answer": "制度の導入主体である国が決めると想定しています。",
+          "concessionKey": null
+        },
+        {
+          "answer": "整わない場合は移行を延ばす設計が必要です。その限りで課題は残ります。",
+          "concessionKey": "AD1"
+        }
+      ]
+    },
+    {
+      "role": "judge",
+      "outputs": [
+        {
+          "match": {
+            "winner": "negative",
+            "confidence": 0.7,
+            "needsReview": false,
+            "hasValidConstructive": {
+              "affirmative": true,
+              "negative": true
+            },
+            "votingIssues": [
+              {
+                "title": "生徒の時間の使い方",
+                "winner": "affirmative",
+                "reason": "肯定側は選択制が時間の使い道を生徒に返すと示し、否定側の反論に再構築で答えた。",
+                "sectionIds": [
+                  1,
+                  5,
+                  9
+                ]
+              },
+              {
+                "title": "地域の受け皿",
+                "winner": "negative",
+                "reason": "否定側は指導者の総数が増えない点を最後まで維持した。",
+                "sectionIds": [
+                  3,
+                  7,
+                  10
+                ]
+              }
+            ],
+            "axes": [
+              {
+                "axis": "logic",
+                "score": 18,
+                "max": 25,
+                "reason": "主張・理由・根拠の順は保たれているが、比較の言及が第11セクションに限られる。",
+                "sectionIds": [
+                  1,
+                  3,
+                  11
+                ]
+              },
+              {
+                "axis": "evidence",
+                "score": 13,
+                "max": 20,
+                "reason": "登録済みカードを立論で用いたが、再構築での追加引用が少ない。",
+                "sectionIds": [
+                  1,
+                  9
+                ]
+              },
+              {
+                "axis": "rebuttal",
+                "score": 14,
+                "max": 20,
+                "reason": "双方が相手の第1論点に応答したが、第2論点への言及が薄い。",
+                "sectionIds": [
+                  5,
+                  7,
+                  9,
+                  10
+                ]
+              },
+              {
+                "axis": "cx",
+                "score": 14,
+                "max": 20,
+                "reason": "質問は1問1論点で焦点が定まっている。回答に結論先行でないものがある。",
+                "sectionIds": [
+                  2,
+                  4,
+                  6,
+                  8
+                ]
+              }
+            ]
+          },
+          "newArgumentFindings": [
+            {
+              "sectionNo": 5,
+              "claimedArgumentKey": "AD1",
+              "quote": "さらに、地域社会との関係が失われるという新しい問題もあります。",
+              "reason": "AD1（学習時間）とは独立した新しい不利益を提示している。"
+            }
+          ],
+          "learnerReport": {
+            "seat": "A1",
+            "sectionsCovered": [
+              1,
+              2
+            ],
+            "axes": [
+              {
+                "axis": "constructive_structure",
+                "score": 18,
+                "max": 25,
+                "reason": "論点のタイトルと本文が対応している。理由の具体性をもう一段足せる。",
+                "sectionIds": [
+                  1
+                ]
+              },
+              {
+                "axis": "evidence_use",
+                "score": 13,
+                "max": 20,
+                "reason": "登録カードを選べているが、引用と主張の結びつきの説明が短い。",
+                "sectionIds": [
+                  1
+                ]
+              },
+              {
+                "axis": "cx_response",
+                "score": 13,
+                "max": 20,
+                "reason": "直接答えられている回答が多い。1件は結論より先に説明が来ている。",
+                "sectionIds": [
+                  2
+                ]
+              }
+            ],
+            "strengths": [
+              "論点のタイトルが短く、何を主張するのかが分かる。",
+              "質疑で相手の質問から逃げていない。"
+            ],
+            "nextActions": [
+              "立論の理由に、数値か具体例をひとつ足す。",
+              "回答は最初の一文で結論を述べる。"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "role": "cx_question",
+      "sectionNo": 8,
+      "cxTurnIndex": 0,
+      "outputs": [
+        {
+          "question": "存在しない論点について質問します。",
+          "targetArgumentKey": "AD9"
+        },
+        {
+          "question": "存在しない論点について質問します。",
+          "targetArgumentKey": "AD9"
+        },
+        {
+          "question": "存在しない論点について質問します。",
+          "targetArgumentKey": "AD9"
+        },
+        {
+          "question": "先ほどの反論は、肯定側の第1論点を守るものですか。",
+          "targetArgumentKey": "AD1"
+        }
+      ]
+    },
+    {
+      "role": "cx_question",
+      "sectionNo": 8,
+      "cxTurnIndex": 1,
+      "outputs": [
+        {
+          "question": "移行期間の設定は、誰が決めると想定していますか。",
+          "targetArgumentKey": "AD1"
+        }
+      ]
+    },
+    {
+      "role": "cx_question",
+      "sectionNo": 8,
+      "cxTurnIndex": 2,
+      "outputs": [
+        {
+          "question": "期間内に受け皿が整わなかった場合はどうなりますか。",
+          "targetArgumentKey": "AD1"
+        }
+      ]
+    }
+  ]
+}

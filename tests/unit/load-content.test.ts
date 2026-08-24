@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_MOTION_FILE,
   DEFAULT_RULE_SET_FILE,
+  loadE2eHumanInput,
   loadMockAiFixture,
   loadMotion,
   loadPersona,
@@ -67,5 +68,26 @@ describe('AIが読む契約ファイル（設計 §15.4 / §15.7）', () => {
 
   it('存在しない persona は落ちる', () => {
     expect(() => loadPersona('unknown' as 'easy')).toThrow();
+  });
+});
+
+describe('E2E の人間入力 fixture（設計 §15.7）', () => {
+  it('検証を通り、立論とCX回答を持っている', () => {
+    const input = loadE2eHumanInput();
+
+    expect(input.constructive.arguments.length).toBeGreaterThanOrEqual(1);
+    expect(input.cxAnswers.length).toBeGreaterThanOrEqual(1);
+    expect(input.playerName.length).toBeGreaterThan(0);
+  });
+
+  it('rule set の往復数ぶんの回答が用意されている', () => {
+    const input = loadE2eHumanInput();
+    const exchanges = loadRuleSet().constraints.cxExchangesPerSection;
+    expect(input.cxAnswers.length).toBeGreaterThanOrEqual(exchanges);
+  });
+
+  it('形の違う JSON は読み込み時に落ちる（黙って使わない）', () => {
+    // AI 用の fixture を人間入力として読ませる。schema が違うので通らない
+    expect(() => loadE2eHumanInput('e2e-human-input-broken')).toThrow();
   });
 });

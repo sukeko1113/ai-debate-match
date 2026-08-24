@@ -1,6 +1,6 @@
 # P8: Fallback & Evidence guard（論点0件経路・自動充填・Evidenceガード）
 
-> **担当ブランチ**: （未着手）
+> **担当ブランチ**: `claude/p8-fallback-evidence-guard`
 > 着手時にこの欄へ自分のブランチ名を書いてコミットする。既に埋まっていれば、
 > 別のセッションが着手済みである（CLAUDE.md「着手前の確認」）。
 

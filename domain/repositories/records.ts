@@ -1,4 +1,4 @@
-import type { Seat } from '@/schemas/common';
+import type { ArgumentKind, ArgumentState, Seat, Side } from '@/schemas/common';
 
 /**
  * 永続化する行の形（設計 §13 データ契約）。
@@ -26,6 +26,39 @@ export type SpeechRecord = {
   readonly submitted: boolean;
   /** 固定文で埋めたときに true（設計 §10.2） */
   readonly autoFilled: boolean;
+};
+
+/**
+ * 設計 §13 arguments。UNIQUE(match_id, argument_key)。
+ * 行が増えるのは Constructive のセクションだけである（設計 §6.3）。
+ * `is_new_argument` は設計 §9.1 で廃止されたため、列を作らない。
+ */
+export type ArgumentRecord = {
+  readonly id: string;
+  readonly matchId: string;
+  /** AD1 / AD2 / DA1 / DA2。採番はサーバのみが行う（設計 §8.2） */
+  readonly argumentKey: string;
+  readonly side: Side;
+  /** side から決まる。クライアントとAIの指定は使わない（設計 §8.2） */
+  readonly kind: ArgumentKind;
+  readonly label: string;
+  readonly body: string;
+  /** 論点が生まれたセクション番号 */
+  readonly originSection: number;
+  readonly state: ArgumentState;
+};
+
+/** 設計 §13 evidence_cards。seed または手入力のみで、AI生成は禁止（設計 §15.6） */
+export type EvidenceCardRecord = {
+  readonly id: string;
+  readonly matchId: string;
+  readonly side: Side;
+  readonly title: string;
+  readonly sourceLabel: string;
+  readonly publishedOn: string;
+  readonly quote: string;
+  readonly verificationStatus: string;
+  readonly demoOnly: boolean;
 };
 
 /** 設計 §13 cx_turns。質問と回答は同じ行の別列である（設計 §7） */

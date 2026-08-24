@@ -1,6 +1,6 @@
 # P4: Constructive input model（構造化立論と AD/DA 採番）
 
-> **担当ブランチ**: （着手時に記入）
+> **担当ブランチ**: `claude/p4-constructive-input-model`
 > 着手時にこの欄へ自分のブランチ名を書いてコミットする。既に埋まっていれば、
 > 別のセッションが着手済みである（CLAUDE.md「着手前の確認」）。
 

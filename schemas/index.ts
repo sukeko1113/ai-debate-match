@@ -1,4 +1,6 @@
 export {
+  argumentKindSchema,
+  argumentStateSchema,
   cxPhaseSchema,
   matchStatusSchema,
   occupantTypeSchema,
@@ -6,6 +8,8 @@ export {
   seatSide,
   sideSchema,
   slotKindSchema,
+  type ArgumentKind,
+  type ArgumentState,
   type CxPhase,
   type MatchStatus,
   type OccupantType,
@@ -45,3 +49,20 @@ export {
   type ParseMotionOptions,
   type SeedEvidenceCard,
 } from './motion';
+
+export {
+  MAX_ARGUMENT_BODY_LENGTH,
+  MAX_ARGUMENT_LABEL_LENGTH,
+  MAX_EVIDENCE_CARDS_PER_ARGUMENT,
+  MAX_PLAN_LENGTH,
+  buildConstructiveInputSchema,
+  buildConstructiveRequestSchema,
+  constructiveArgumentSchema,
+  parseConstructiveInput,
+  type ConstructiveArgumentInput,
+  type ConstructiveInput,
+  type ConstructiveInputIssue,
+  type ConstructiveLimits,
+  type ConstructiveParseResult,
+  type ConstructiveRequest,
+} from './human-input';

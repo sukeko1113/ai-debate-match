@@ -23,6 +23,10 @@ export type RepositoryConstraint =
   | 'evidence_uses_cx_uniq'
   /** UNIQUE(match_id, slot_index, COALESCE(cx_turn_index,-1), role, attempt)（設計 §13.1） */
   | 'ai_runs_uniq'
+  /** UNIQUE(match_id, argument_key)（設計 §13 arguments） */
+  | 'arguments_match_key_uniq'
+  /** PK(id)（設計 §13 evidence_cards） */
+  | 'evidence_cards_pkey'
   /** PK(match_id) */
   | 'matches_pkey'
   /** FK: 参照先の行が無い */

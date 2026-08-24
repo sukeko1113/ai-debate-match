@@ -7,8 +7,10 @@ export {
 export type { MatchRepository } from './match-repository';
 export type {
   AiRunRecord,
+  ArgumentRecord,
   AuditLogRecord,
   CxTurnRecord,
+  EvidenceCardRecord,
   EvidenceUseRecord,
   SpeechRecord,
   SpeechSource,

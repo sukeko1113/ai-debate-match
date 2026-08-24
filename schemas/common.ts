@@ -52,3 +52,17 @@ export type CxPhase = z.infer<typeof cxPhaseSchema>;
 /** 席の担当者種別（設計 付録B） */
 export const occupantTypeSchema = z.enum(['human', 'ai']);
 export type OccupantType = z.infer<typeof occupantTypeSchema>;
+
+/** 論点の種別。side から決まる。クライアントとAIの指定は使わない（設計 §8.2） */
+export const argumentKindSchema = z.enum(['advantage', 'disadvantage']);
+export type ArgumentKind = z.infer<typeof argumentKindSchema>;
+
+/** フローシート上の論点の状態（設計 付録B flowSheet） */
+export const argumentStateSchema = z.enum([
+  'submitted',
+  'attacked',
+  'defended',
+  'dropped',
+  'compared',
+]);
+export type ArgumentState = z.infer<typeof argumentStateSchema>;

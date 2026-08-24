@@ -1,5 +1,9 @@
 # P2: Rule engine
 
+> **担当ブランチ**: `claude/p2-implementation-hhxs2s`
+> 着手時にこの欄へ自分のブランチ名を書いてコミットする。既に埋まっていれば、
+> 別のセッションが着手済みである（CLAUDE.md「着手前の確認」）。
+
 `docs/BASIC_DESIGN_v05.md` に従って P2 を実装します。**今回は P2 だけ**を実装し、P3以降には着手しないでください。
 
 作業前に `docs/BASIC_DESIGN_v05.md`（特に §6、§7）と `CLAUDE.md` を読んでください。

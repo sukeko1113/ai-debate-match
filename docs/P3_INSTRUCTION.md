@@ -1,5 +1,9 @@
 # P3: Match domain（状態機械）
 
+> **担当ブランチ**: `claude/p3-implementation-vhbjj8`
+> 着手時にこの欄へ自分のブランチ名を書いてコミットする。既に埋まっていれば、
+> 別のセッションが着手済みである（CLAUDE.md「着手前の確認」）。
+
 `docs/BASIC_DESIGN_v05.md` に従って P3 を実装します。**今回は P3 だけ**を実装し、P4以降には着手しないでください。
 
 作業前に `docs/BASIC_DESIGN_v05.md`（特に §7、§10、§11）と `CLAUDE.md` を読んでください。

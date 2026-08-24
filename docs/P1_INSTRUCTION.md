@@ -1,5 +1,9 @@
 # P1: Scaffold & contracts
 
+> **担当ブランチ**: `claude/p1-implementation-gdjtuq`
+> 着手時にこの欄へ自分のブランチ名を書いてコミットする。既に埋まっていれば、
+> 別のセッションが着手済みである（CLAUDE.md「着手前の確認」）。
+
 このリポジトリで『基本設計v05 Phase 1』を実装します。**今回は P1 だけ**を実装し、P2以降には着手しないでください。
 
 作業前に `docs/BASIC_DESIGN_v05.md` と `CLAUDE.md` を読んでください。

@@ -1,6 +1,6 @@
 # P5: Create / Room UI（Setup・MatchSnapshot API・立論フォーム）
 
-> **担当ブランチ**: （着手時に記入）
+> **担当ブランチ**: `claude/p5-create-room-ui`
 > 着手時にこの欄へ自分のブランチ名を書いてコミットする。既に埋まっていれば、
 > 別のセッションが着手済みである（CLAUDE.md「着手前の確認」）。
 

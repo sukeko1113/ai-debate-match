@@ -194,6 +194,7 @@ describe('合法遷移: ADVANCE と JUDGE（設計 §11）', () => {
   it('CXスロットへ入ると phase=question, cursor=0 が設定される（設計 §7）', () => {
     const state = driveToSlot(CX_N4_TO_A1);
     expect(state.cx).toEqual({
+      truncated: false,
       phase: 'question',
       turnCursor: 0,
       total: state.ruleSet.constraints.cxExchangesPerSection,

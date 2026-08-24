@@ -197,3 +197,36 @@ describe('論点0件のCX（設計 §10 / §10.1）', () => {
     expect(driveToSlot(CX_N4_TO_A1, bothSidesArguments).cx?.mode).toBe('normal');
   });
 });
+
+describe('打ち切り: realtime で持ち時間が尽きたとき（設計 §7）', () => {
+  it('CXの回答が HUMAN_TIMEOUT ならスロットを完了させ、ADVANCE できる', () => {
+    // 1往復目の質問を確定させ、回答待ちにする
+    const waitingAnswer = confirmQuestion(atCx());
+    expect(waitingAnswer.cx?.phase).toBe('answer');
+    expect(waitingAnswer.cx?.turnCursor).toBe(0);
+
+    const timedOut = apply(
+      apply(waitingAnswer, { type: 'NEED_HUMAN', args: bothSidesArguments }),
+      { type: 'HUMAN_TIMEOUT' },
+    );
+
+    expect(timedOut.status).toBe('active');
+    expect(timedOut.cx?.truncated).toBe(true);
+    // cursor は進めない。何往復まで成立したかを残す（設計 §7）
+    expect(timedOut.cx?.turnCursor).toBe(0);
+    expect(timedOut.slotStatuses[CX_N4_TO_A1]).toBe('done');
+
+    const advanced = apply(timedOut, { type: 'ADVANCE', args: bothSidesArguments });
+    expect(advanced.currentSlotIndex).toBe(CX_N4_TO_A1 + 1);
+  });
+
+  it('HUMAN_SUBMIT は打ち切らない。往復は続く', () => {
+    const submitted = confirmAnswer(confirmQuestion(atCx()));
+    expect(submitted.cx?.truncated).toBe(false);
+    expect(submitted.cx?.turnCursor).toBe(1);
+    expect(submitted.slotStatuses[CX_N4_TO_A1]).toBe('active');
+    expect(reject(submitted, { type: 'ADVANCE', args: bothSidesArguments }).code).toBe(
+      'SLOT_NOT_READY',
+    );
+  });
+});

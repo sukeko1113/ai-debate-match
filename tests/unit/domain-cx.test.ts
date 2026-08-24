@@ -8,6 +8,7 @@ import {
   cxResponsibleSeat,
   isCxComplete,
   startCx,
+  truncateCx,
 } from '@/domain/cx';
 import type { RuleSlot } from '@/schemas/rule-set';
 
@@ -93,6 +94,30 @@ describe('往復の進み方（設計 §7）', () => {
     confirmQuestion(start);
     expect(start.phase).toBe('question');
     expect(start.turnCursor).toBe(0);
+  });
+});
+
+describe('打ち切り（設計 §7）', () => {
+  it('打ち切られた往復は完了として扱う', () => {
+    const midway = confirmQuestion(startCx(fixtureRuleSet));
+    expect(isCxComplete(midway)).toBe(false);
+
+    const truncated = truncateCx(midway);
+    expect(truncated.truncated).toBe(true);
+    expect(isCxComplete(truncated)).toBe(true);
+  });
+
+  it('cursor は進めない。何往復まで成立したかを残す', () => {
+    const afterOneExchange = confirmCxOutput(confirmCxOutput(startCx(fixtureRuleSet)));
+    const truncated = truncateCx(confirmQuestion(afterOneExchange));
+    expect(truncated.turnCursor).toBe(1);
+    expect(truncated.phase).toBe('answer');
+  });
+
+  it('元の値を書き換えない', () => {
+    const start = startCx(fixtureRuleSet);
+    truncateCx(start);
+    expect(start.truncated).toBe(false);
   });
 });
 

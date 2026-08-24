@@ -79,7 +79,11 @@ class MatchRunner {
 }
 
 type RunOptions = {
-  /** 人間（A1）が提出するか。false なら HUMAN_TIMEOUT で完走する（設計 §10 / E11） */
+  /**
+   * 人間（A1）が立論を提出するか。false なら立論は HUMAN_TIMEOUT で流し、完走する（設計 §10 / E11）。
+   * CXの回答は提出する。設計 §10 の学習者レポート欄が「A1未提出でも質疑応答20点は採点する」
+   * としており、回答そのものは行われる前提だからである。
+   */
   humanSubmits: boolean;
 };
 
@@ -222,13 +226,11 @@ async function runSlot(runner: MatchRunner, options: RunOptions): Promise<void> 
       continue;
     }
 
-    // need_human
+    // need_human。CXの回答は未提出シナリオでも行う（設計 §10 学習者レポート）
+    const submits = options.humanSubmits || slot.kind === 'cx';
     await runner.send({ type: 'NEED_HUMAN', args });
-    await saveDummyOutput(runner, slot, seat, {
-      submitted: options.humanSubmits,
-      autoFilled: false,
-    });
-    await runner.send({ type: options.humanSubmits ? 'HUMAN_SUBMIT' : 'HUMAN_TIMEOUT' });
+    await saveDummyOutput(runner, slot, seat, { submitted: submits, autoFilled: false });
+    await runner.send({ type: submits ? 'HUMAN_SUBMIT' : 'HUMAN_TIMEOUT' });
   }
 
   // 提出されなかった立論は argument を作らない（設計 §11 HUMAN_TIMEOUT）
@@ -327,6 +329,7 @@ describe('17スロットを通しで進める（P3 §7 / 設計 §11）', () => 
       turnCursor: 1,
       total: runner.state.ruleSet.constraints.cxExchangesPerSection,
       mode: 'normal',
+      truncated: false,
     });
     expect(reloaded?.version).toBe(runner.state.version);
   });
@@ -352,7 +355,14 @@ describe('A1 が最後まで提出しなくても完走する（設計 §10 / E1
 
     // 第2セクションCXは固定質問モードで、AIを呼ばずに3往復する（設計 §10.1）
     const cxTurns = await repository.listCxTurns(state.id);
-    expect(cxTurns.filter((row) => row.sectionNo === 2)).toHaveLength(3);
+    const exchanges = state.ruleSet.constraints.cxExchangesPerSection;
+    expect(cxTurns.filter((row) => row.sectionNo === 2)).toHaveLength(exchanges);
+
+    // 反論を対象とするCX（第6・第8セクション）は、立論が0件でも通常どおりAIが質問する。
+    // 設計 §17 は論点0件時のAI実行を24回（第2CXの−3と第5・第9の−2）としており、
+    // 判定1回を除く23回とここで一致する。
+    expect(runner.aiRunCount).toBe(23);
+    expect(await repository.listAiRuns(state.id)).toHaveLength(23);
 
     await runner.send({ type: 'JUDGE', args: runner.args });
     expect(runner.state.status).toBe('judged');

@@ -1,6 +1,6 @@
 # P5: Create / Room UI（Setup・MatchSnapshot API・立論フォーム）
 
-> **担当ブランチ**: （着手時に記入）
+> **担当ブランチ**: `claude/p5-create-room-ui`
 > 着手時にこの欄へ自分のブランチ名を書いてコミットする。既に埋まっていれば、
 > 別のセッションが着手済みである（CLAUDE.md「着手前の確認」）。
 
@@ -58,11 +58,22 @@ Route Handler から同じ Repository 実装を使えるようにする。
 | POST | `/api/matches/:id/evidence-cards` | Evidence カードの登録 → 201 EvidenceCard |
 | POST | `/api/matches/:id/start` | 200 MatchSnapshot |
 | POST | `/api/matches/:id/constructive` | P4 の `submitConstructive` を呼ぶ → 200 MatchSnapshot |
+| POST | `/api/matches/:id/advance` | 進行を1歩進める。**AI生成を伴わない経路だけ**（後述） |
+| POST | `/api/matches/:id/skip-prep` | 準備スロットを終える → 200 MatchSnapshot |
 
 - 応答は設計 §14.2 の封筒（`ok` / `data` / `requestId`、失敗時は `error`）に統一する
 - エラーコードは設計 §14.4 の集合だけを使い、HTTP status も同表に合わせる
 - **Server Actions を使わない。** Route Handler に統一する（設計 §12 / CLAUDE.md 禁止事項）
-- **`advance` と `retry-ai` は P6、`judge` / `result` / `export` は P9 である。** ここでは作らない
+- **`retry-ai` は P6、`judge` / `result` / `export` は P9 である。** ここでは作らない
+
+> **advance を P5 に含める理由**
+>
+> 状態機械は `active → NEED_HUMAN → waiting_human` を経ないと入力待ちにならない（設計 §11）。
+> この `NEED_HUMAN` を出す口が無いと、立論フォームに到達できず P5 の受入基準2・3 を満たせない。
+> よって advance のうち **人間の手番・準備スロット・次スロットへの移動** だけを P5 で実装し、
+> 担当席がAIのスロットに来たら状態を変えずに「まだ提供されていない」と返す。
+> 仮の生成をここに置かない。AIの分岐は P6 でこの経路に入る。
+> 1回のリクエストで進むのは1ステップである（設計 §14.1）。202 は返さない。
 
 ### 4. 試合の作成（`application/create-match/`）
 
@@ -110,7 +121,7 @@ E03（二重送信）は API レベルの integration test で確かめてよい
 
 ## P5でやらないこと
 
-`advance` と `retry-ai`、AI Provider、Mock AI（P6）。CXの往復とタイマーの打ち切り（P7）。
+AI Provider と Mock AI、`retry-ai`、advance のAI分岐（P6）。CXの往復とタイマーの打ち切り（P7）。
 固定文と Evidence ガードのAI側（P8）。判定・Result 画面・JSON出力（P9）。Postgres adapter。
 
 `content/` 配下を書き換えない。
@@ -129,6 +140,7 @@ E03（二重送信）は API レベルの integration test で確かめてよい
 10. Server Actions を使っていない。データ変更はすべて Route Handler を通る
 11. 色だけに頼らない表示、キーボード操作、入力欄とエラーの関連付けができている（設計 §18.2）
 12. Memory Repository がプロセス内で1つであり、作成した試合を次のリクエストで読み出せる
+13. `advance` が1回につき1ステップだけ進み、AIが必要なスロットでは状態を変えずに返す
 
 ## 完了報告に書くこと
 

@@ -16,10 +16,14 @@ export type SeatDuty = {
   role: SeatDutyRole;
 };
 
-/** 席割り。設計 付録B の seats と同じ形（displayName は判定に使わない） */
+/**
+ * 席割り。設計 §13 match_seats と 付録B の seats に対応する。
+ * `displayName` は表示のためだけにあり、進行の判定には使わない。
+ */
 export type SeatAssignment = {
-  seat: Seat;
-  occupantType: OccupantType;
+  readonly seat: Seat;
+  readonly occupantType: OccupantType;
+  readonly displayName: string;
 };
 
 /** その席が担当するスロットを index 昇順で返す（スピーチ／CX質問／CX応答） */

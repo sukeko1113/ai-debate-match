@@ -1,7 +1,8 @@
+import Link from 'next/link';
+
 /**
  * Start 画面（設計 §5.1 の `/`）。
- * Phase 1 P1 の範囲は「目的説明・開始ボタン・デモ注意」の表示のみ。
- * 開始ボタンの遷移先（/matches/new）は P5 で接続する。
+ * 目的説明・開始ボタン・デモ注意を出す。ログインは無い。
  */
 export default function StartPage() {
   return (
@@ -20,9 +21,9 @@ export default function StartPage() {
         <li>試合後に、暫定判定と学習者向けレポートを表示します。</li>
       </ul>
 
-      <button type="button" className="start-button">
+      <Link href="/matches/new" className="start-button">
         試合を始める
-      </button>
+      </Link>
 
       <div className="notice">
         <p>

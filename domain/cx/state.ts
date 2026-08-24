@@ -1,4 +1,4 @@
-import type { CxPhase, Seat } from '@/schemas/common';
+import type { CxMode, CxPhase, Seat } from '@/schemas/common';
 import type { RuleSet, RuleSlot } from '@/schemas/rule-set';
 
 /**
@@ -13,8 +13,8 @@ import type { RuleSet, RuleSlot } from '@/schemas/rule-set';
  * 純関数のみ。すべての関数は新しい値を返し、引数を書き換えない。
  */
 
-/** 論点0件のときは固定質問へ切り替える（設計 §10 / §10.1） */
-export type CxMode = 'normal' | 'no_argument';
+/** 論点0件のときは固定質問へ切り替える（設計 §10 / §10.1）。語彙は schemas が持つ */
+export type { CxMode };
 
 export type CxState = {
   /** question なら質問席、answer なら回答席が担当する（設計 §7） */

@@ -1,4 +1,4 @@
-import type { MatchStatus, Seat } from '@/schemas/common';
+import type { MatchStatus, Seat, SlotProgressStatus } from '@/schemas/common';
 import type { RuleSet, RuleSlot } from '@/schemas/rule-set';
 
 import type { CxState } from '../cx';
@@ -15,8 +15,8 @@ import type { SeatAssignment } from '../rules';
  * 状態機械は位置だけを決める。
  */
 
-/** 各スロットの進行状態（設計 付録B progress） */
-export type SlotProgressStatus = 'pending' | 'active' | 'done' | 'failed' | 'skipped_no_target';
+/** 各スロットの進行状態（設計 付録B progress）。語彙は schemas が持つ */
+export type { SlotProgressStatus };
 
 /** 進行が終わったスロットの状態。ADVANCE はこの2つのときだけ許可する（設計 §11） */
 const FINISHED_SLOT_STATUSES: readonly SlotProgressStatus[] = ['done', 'skipped_no_target'];

@@ -45,7 +45,9 @@ describe('合法遷移: draft → ready → active（設計 §11）', () => {
   });
 
   it('席が8席そろっていない CONFIGURE は拒否される', () => {
-    const broken = newMatch({ seats: [{ seat: 'A1', occupantType: 'human' }] });
+    const broken = newMatch({
+      seats: [{ seat: 'A1', occupantType: 'human', displayName: 'テスト太郎' }],
+    });
     expect(reject(broken, { type: 'CONFIGURE' }).code).toBe('INVALID_TRANSITION');
   });
 

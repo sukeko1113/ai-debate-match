@@ -34,6 +34,7 @@ const ruleSet = parseRuleSet(
 const seats: SeatAssignment[] = ALL_SEATS.map((seat) => ({
   seat,
   occupantType: seat === 'A1' ? 'human' : 'ai',
+  displayName: seat === 'A1' ? 'テスト太郎' : `AI ${seat}`,
 }));
 
 describe('slotAt / nextSlot / sectionSlot', () => {
@@ -151,10 +152,15 @@ describe('isHumanTurn（席割りは引数で受け取る）', () => {
   });
 
   it('席割りを差し替えれば結果が変わる（matches を読んでいない）', () => {
-    const allAi: SeatAssignment[] = ALL_SEATS.map((seat) => ({ seat, occupantType: 'ai' }));
+    const allAi: SeatAssignment[] = ALL_SEATS.map((seat) => ({
+      seat,
+      occupantType: 'ai',
+      displayName: `AI ${seat}`,
+    }));
     const allHuman: SeatAssignment[] = ALL_SEATS.map((seat) => ({
       seat,
       occupantType: 'human',
+      displayName: `人 ${seat}`,
     }));
     expect(isHumanTurn(ruleSet, 0, null, allAi)).toBe(false);
     expect(isHumanTurn(ruleSet, 0, null, allHuman)).toBe(true);

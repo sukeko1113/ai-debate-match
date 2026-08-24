@@ -49,12 +49,14 @@ export function ruleSetWithCxExchanges(exchanges: number): RuleSet {
 export const defaultSeats: SeatAssignment[] = ALL_SEATS.map((seat) => ({
   seat,
   occupantType: seat === 'A1' ? 'human' : 'ai',
+  displayName: seat === 'A1' ? 'テスト太郎' : `AI ${seat}`,
 }));
 
 /** 8席すべてAI。人間側の分岐を通さずに進めたいときに使う */
 export const allAiSeats: SeatAssignment[] = ALL_SEATS.map((seat) => ({
   seat,
   occupantType: 'ai',
+  displayName: `AI ${seat}`,
 }));
 
 export const noArguments: ArgumentInventory = { affirmative: [], negative: [] };

@@ -4,8 +4,10 @@ import {
   MatchVersionConflictError,
   RepositoryConflictError,
   type AiRunRecord,
+  type ArgumentRecord,
   type AuditLogRecord,
   type CxTurnRecord,
+  type EvidenceCardRecord,
   type EvidenceUseRecord,
   type MatchRepository,
   type SpeechRecord,
@@ -31,6 +33,8 @@ import type { RuleSlot } from '@/schemas/rule-set';
 type Tables = {
   matches: Map<string, MatchState>;
   auditLogs: AuditLogRecord[];
+  arguments: ArgumentRecord[];
+  evidenceCards: EvidenceCardRecord[];
   speeches: SpeechRecord[];
   cxTurns: CxTurnRecord[];
   evidenceUses: EvidenceUseRecord[];
@@ -47,6 +51,8 @@ export class MemoryMatchRepository implements MatchRepository {
   private readonly tables: Tables = {
     matches: new Map(),
     auditLogs: [],
+    arguments: [],
+    evidenceCards: [],
     speeches: [],
     cxTurns: [],
     evidenceUses: [],
@@ -130,6 +136,54 @@ export class MemoryMatchRepository implements MatchRepository {
 
   async listAuditLogs(matchId: string): Promise<readonly AuditLogRecord[]> {
     return this.tables.auditLogs.filter((row) => row.matchId === matchId).map(copy);
+  }
+
+  async insertArguments(records: readonly ArgumentRecord[]): Promise<void> {
+    if (records.length === 0) return;
+
+    // UNIQUE(match_id, argument_key)（設計 §13）。
+    // 受け取った並びの中の重複も、保存済みとの重複も、書く前に見る。
+    // 途中まで書いてから落ちると、採番のやり直しが部分的な行の上で起きる。
+    const seen = new Set<string>();
+    for (const record of records) {
+      this.requireMatch(record.matchId);
+      const key = `${record.matchId}\u0000${record.argumentKey}`;
+      const duplicate =
+        seen.has(key) ||
+        this.tables.arguments.some(
+          (row) => row.matchId === record.matchId && row.argumentKey === record.argumentKey,
+        );
+      if (duplicate) {
+        throw new RepositoryConflictError(
+          'arguments_match_key_uniq',
+          `同じ argument_key が既にある（argument_key=${record.argumentKey}）。行が増えるのは Constructive だけである。設計 §6.3 / §13`,
+          { matchId: record.matchId, argumentKey: record.argumentKey },
+        );
+      }
+      seen.add(key);
+    }
+
+    this.tables.arguments.push(...records.map(copy));
+  }
+
+  async listArguments(matchId: string): Promise<readonly ArgumentRecord[]> {
+    return this.tables.arguments.filter((row) => row.matchId === matchId).map(copy);
+  }
+
+  async insertEvidenceCard(record: EvidenceCardRecord): Promise<void> {
+    this.requireMatch(record.matchId);
+    if (this.tables.evidenceCards.some((row) => row.id === record.id)) {
+      throw new RepositoryConflictError(
+        'evidence_cards_pkey',
+        `同じ id の Evidence カードが既にある（id=${record.id}）。設計 §13`,
+        { matchId: record.matchId, evidenceCardId: record.id },
+      );
+    }
+    this.tables.evidenceCards.push(copy(record));
+  }
+
+  async listEvidenceCards(matchId: string): Promise<readonly EvidenceCardRecord[]> {
+    return this.tables.evidenceCards.filter((row) => row.matchId === matchId).map(copy);
   }
 
   async insertSpeech(record: SpeechRecord): Promise<void> {

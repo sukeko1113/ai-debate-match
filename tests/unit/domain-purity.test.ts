@@ -59,11 +59,11 @@ const FORBIDDEN_PATTERNS: ReadonlyArray<{ label: string; pattern: RegExp }> = [
 ];
 
 describe('domain は純関数と契約だけを持つ（受入基準9 / 設計 §12.1）', () => {
-  it('P3 で加わったディレクトリも走査している', () => {
+  it('P3・P4 で加わったディレクトリも走査している', () => {
     const directories = new Set(
       sourceFiles.map((file) => file.name.split('/')[0] ?? '').filter((name) => name !== ''),
     );
-    for (const required of ['rules', 'match', 'cx', 'fallback', 'repositories']) {
+    for (const required of ['rules', 'match', 'cx', 'fallback', 'repositories', 'arguments']) {
       expect(directories).toContain(required);
     }
     // コメントを外しても本体が残っていること（走査が空振りしていない）

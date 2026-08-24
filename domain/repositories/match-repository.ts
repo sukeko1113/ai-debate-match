@@ -2,8 +2,10 @@ import type { AuditEvent, MatchState } from '../match';
 
 import type {
   AiRunRecord,
+  ArgumentRecord,
   AuditLogRecord,
   CxTurnRecord,
+  EvidenceCardRecord,
   EvidenceUseRecord,
   SpeechRecord,
 } from './records';
@@ -54,6 +56,17 @@ export interface MatchRepository {
     truncated?: boolean;
   }): Promise<void>;
   listCxTurns(matchId: string): Promise<readonly CxTurnRecord[]>;
+
+  /**
+   * 立論の論点をまとめて書く（設計 §8.2）。UNIQUE(match_id, argument_key)。
+   * 1件でも衝突したら1件も書かない。採番のやり直しを部分的な行の上でさせない。
+   */
+  insertArguments(records: readonly ArgumentRecord[]): Promise<void>;
+  listArguments(matchId: string): Promise<readonly ArgumentRecord[]>;
+
+  /** seed または手入力のみ。AI生成は禁止（設計 §13 / §15.6） */
+  insertEvidenceCard(record: EvidenceCardRecord): Promise<void>;
+  listEvidenceCards(matchId: string): Promise<readonly EvidenceCardRecord[]>;
 
   /** 出典は speech か cx_turn のどちらか一方。部分一意索引で重複を弾く（設計 §13.1） */
   insertEvidenceUse(record: EvidenceUseRecord): Promise<void>;

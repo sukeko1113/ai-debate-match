@@ -13,6 +13,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "smoke:openai": "vitest run --config vitest.smoke.config.mts",
     "test:e2e": "playwright test"
   },
   "dependencies": {

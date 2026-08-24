@@ -25,6 +25,13 @@ export type UsageSnapshot = {
   readonly inputTokens: number;
   readonly outputTokens: number;
   readonly totalTokens: number;
+  /**
+   * 実測ではなく推定であることの印。
+   *
+   * 応答に usage が無いときに 0 を入れると、§17 の上限が黙って効かなくなる。
+   * 出力の長さから見積もった値を入れ、見積もりであることを `ai_runs.usage_json` に残す。
+   */
+  readonly estimated?: boolean;
 };
 
 export type AiGenerateRequest<T> = {

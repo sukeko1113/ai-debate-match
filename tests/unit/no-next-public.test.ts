@@ -32,6 +32,28 @@ function collectFiles(dir: string): string[] {
 
 const scannedFiles = SCANNED_DIRS.flatMap((dir) => collectFiles(path.join(rootDir, dir)));
 
+/** 鍵の名前。ソースに書かずに組み立てる（この検査自体が引っかからないように） */
+const SECRET_ENV_NAME = ['OPENAI', 'API', 'KEY'].join('_');
+
+describe('鍵を読むモジュールは server-only である（設計 §19 / §22）', () => {
+  it('鍵の名前が出るファイルは server-only を宣言している', () => {
+    const offenders = scannedFiles
+      .map((file) => ({ file, code: readFileSync(file, 'utf8') }))
+      .filter(({ code }) => code.includes(SECRET_ENV_NAME))
+      .filter(({ code }) => !/^import 'server-only';/m.test(code))
+      .map(({ file }) => path.relative(rootDir, file));
+
+    expect(offenders).toEqual([]);
+  });
+
+  it('鍵の名前は、実際に1件以上のファイルに現れている（検査が空振りしていない）', () => {
+    const found = scannedFiles.filter((file) =>
+      readFileSync(file, 'utf8').includes(SECRET_ENV_NAME),
+    );
+    expect(found.length).toBeGreaterThan(0);
+  });
+});
+
 describe('client 公開用の接頭辞つき環境変数を使っていない', () => {
   it('bundle に載りうるディレクトリに1件も現れない', () => {
     const offenders = scannedFiles

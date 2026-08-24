@@ -66,6 +66,24 @@ const countFor = (args: ArgumentInventory, side: Side): number =>
   side === 'affirmative' ? args.affirmative.length : args.negative.length;
 
 /**
+ * そのCXが質問の対象とするスピーチ（設計 §7）。
+ * 回答席が直前に行った競技スピーチであり、CXと準備スロットは対象にならない。
+ */
+function questionedSpeechSlot(ruleSet: RuleSet, cxSlot: RuleSlot): RuleSlot | null {
+  const respondentSeat = cxSlot.respondentSeat;
+  if (respondentSeat === null) return null;
+
+  const earlier = ruleSet.slots.filter(
+    (slot) =>
+      slot.index < cxSlot.index &&
+      slot.kind !== 'prep' &&
+      slot.kind !== 'cx' &&
+      slot.actorSeat === respondentSeat,
+  );
+  return earlier[earlier.length - 1] ?? null;
+}
+
+/**
  * このスロットがフォールバック経路に該当するか。該当しなければ null。
  *
  * 設計 §10 の表はセクション番号で書かれているが、セクション番号を条件に焼き込むと
@@ -73,17 +91,29 @@ const countFor = (args: ArgumentInventory, side: Side): number =>
  * よって「誰の論点が要るのか」を kind と席から導く。第20回のスロット定義では
  * 次の対応になり、設計 §10 の表と一致する。
  *
- * - 第2セクション CX（N4→A1）: 回答席 A1 は肯定側 → 肯定側の論点が0件なら cx_no_argument
+ * - 第2セクション CX（N4→A1）: 質問の対象は A1 の立論 → 肯定側の論点が0件なら cx_no_argument
  * - 第5セクション Attack（N2）: 反論対象は相手陣営 → 肯定側が0件なら auto_fill
  * - 第9セクション Defense（A3）: 再構築の対象は自陣 → 肯定側が0件なら auto_fill
  */
-function fallbackFor(slot: RuleSlot, input: SlotDecisionInput): SlotAction | null {
+function fallbackFor(
+  ruleSet: RuleSet,
+  slot: RuleSlot,
+  input: SlotDecisionInput,
+): SlotAction | null {
   switch (slot.kind) {
     case 'cx': {
       // 回答は「質問に答える」だけなので、論点が0件でも通常どおり担当席が行う。
       // 置き換わるのは質問の側である（設計 §10.1）。
       if (input.cxPhase !== 'question') return null;
       if (slot.respondentSeat === null) return null;
+
+      // 固定質問へ切り替えるのは「立論が空だったCX」だけである。
+      // 反論・再構築を対象とするCX（第6・第8セクション）は、立論が0件でも
+      // 相手の主張という質問の対象がある。設計 §17 のAI実行回数も、論点0件時に
+      // 減るのは第2CXの3件だけ（29 → 24）として数えられている。
+      const questioned = questionedSpeechSlot(ruleSet, slot);
+      if (questioned === null || questioned.kind !== 'constructive') return null;
+
       return countFor(input.args, seatSide(slot.respondentSeat)) === 0 ? 'cx_no_argument' : null;
     }
     case 'attack': {
@@ -125,7 +155,7 @@ export function decideSlotAction(
     );
   }
 
-  const fallback = fallbackFor(slot, input);
+  const fallback = fallbackFor(ruleSet, slot, input);
   if (fallback !== null) return fallback;
 
   return isHumanTurn(ruleSet, slot.index, input.cxPhase, input.seats) ? 'need_human' : 'need_ai';

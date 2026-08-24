@@ -1,6 +1,13 @@
 import { ALL_SEATS } from '@/schemas/rule-set';
 
-import { confirmCxOutput, isCxComplete, startCx, type CxMode, type CxState } from '../cx';
+import {
+  confirmCxOutput,
+  isCxComplete,
+  startCx,
+  truncateCx,
+  type CxMode,
+  type CxState,
+} from '../cx';
 import {
   decideJudgeOutcome,
   decideSlotAction,
@@ -167,8 +174,15 @@ function isResult(value: ReduceResult | SlotAction): value is ReduceResult {
  * 現在スロットの出力が確定したときの遷移（設計 §7 / §11）。
  * HUMAN_SUBMIT / HUMAN_TIMEOUT / AI_SUCCEEDED はいずれもここへ来る。
  * CXなら往復位置を1つ進め、規定往復数に達したときだけスロットを done にする。
+ *
+ * `truncate` は realtime の打ち切り（設計 §7）。CXスロットで持ち時間が尽きた場合は、
+ * 進行中の往復を打ち切ってスロットを終える。往復を1つ進める通常の確定とは別物である。
  */
-function confirmOutput(state: MatchState, event: MatchEvent): ReduceResult {
+function confirmOutput(
+  state: MatchState,
+  event: MatchEvent,
+  options: { readonly truncate: boolean } = { truncate: false },
+): ReduceResult {
   const slot = currentSlot(state);
   if (slot === null) return invalid(state, event);
   const index = state.currentSlotIndex;
@@ -188,7 +202,7 @@ function confirmOutput(state: MatchState, event: MatchEvent): ReduceResult {
     );
   }
 
-  const cx = confirmCxOutput(state.cx);
+  const cx = options.truncate ? truncateCx(state.cx) : confirmCxOutput(state.cx);
   const complete = isCxComplete(cx);
   return commit(
     state,
@@ -198,7 +212,13 @@ function confirmOutput(state: MatchState, event: MatchEvent): ReduceResult {
       cx,
       slotStatuses: withSlotStatus(state, index, complete ? 'done' : 'active'),
     },
-    { cxPhase: cx.phase, cxTurnCursor: cx.turnCursor, cxTotal: cx.total, cxComplete: complete },
+    {
+      cxPhase: cx.phase,
+      cxTurnCursor: cx.turnCursor,
+      cxTotal: cx.total,
+      cxComplete: complete,
+      cxTruncated: cx.truncated,
+    },
   );
 }
 
@@ -337,10 +357,15 @@ export function reduce(state: MatchState, event: MatchEvent): ReduceResult {
       );
     }
 
-    case 'HUMAN_SUBMIT':
-    case 'HUMAN_TIMEOUT': {
+    case 'HUMAN_SUBMIT': {
       if (state.status !== 'waiting_human') return invalid(state, event);
       return confirmOutput(state, event);
+    }
+
+    case 'HUMAN_TIMEOUT': {
+      if (state.status !== 'waiting_human') return invalid(state, event);
+      // realtime のみ。submitted=false で保存し、CXなら進行中の往復を打ち切る（設計 §7 / §11）
+      return confirmOutput(state, event, { truncate: true });
     }
 
     case 'AI_SUCCEEDED': {

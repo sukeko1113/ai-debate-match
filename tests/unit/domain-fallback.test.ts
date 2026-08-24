@@ -102,6 +102,39 @@ describe('CX: 回答側の論点が0件なら cx_no_argument（設計 §10 / §1
   });
 });
 
+describe('反論を対象とするCXは、立論が0件でも固定質問にしない（設計 §10 / §17）', () => {
+  it.each([
+    { sectionNo: 6, asks: 'A3', answers: 'N2', questioned: '第5セクションの否定Attack' },
+    { sectionNo: 8, asks: 'N3', answers: 'A2', questioned: '第7セクションの肯定Attack' },
+  ])(
+    '第$sectionNoセクション（$asks→$answers）は $questioned が対象なので need_ai',
+    ({ sectionNo }) => {
+      expect(
+        decideSlotAction(
+          fixtureRuleSet,
+          slotOf(sectionNo),
+          input({ args: noArguments, cxPhase: 'question' }),
+        ),
+      ).toBe('need_ai');
+    },
+  );
+
+  it('固定質問へ落ちるのは立論を対象とするCXだけである', () => {
+    const cxSlots = fixtureRuleSet.slots.filter((slot) => slot.kind === 'cx');
+    const fixedQuestionSections = cxSlots
+      .filter(
+        (slot) =>
+          decideSlotAction(fixtureRuleSet, slot, input({ args: noArguments, cxPhase: 'question' })) ===
+          'cx_no_argument',
+      )
+      .map((slot) => slot.sectionNo);
+
+    // 肯定側が0件のとき固定質問になるのは、A1の立論を対象とする第2セクションだけ。
+    // 否定側も0件だが、第4セクションの対象であるN1の立論も同様に空である。
+    expect(fixedQuestionSections).toEqual([2, 4]);
+  });
+});
+
 describe('Attack / Defense: 対象側が0件なら auto_fill（設計 §10）', () => {
   it('第5セクション 否定Attack は肯定側が0件のとき auto_fill', () => {
     expect(decideSlotAction(fixtureRuleSet, slotOf(5), input({ args: noArguments }))).toBe(

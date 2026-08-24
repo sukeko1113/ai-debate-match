@@ -6,6 +6,7 @@ export {
   cxResponsibleSeat,
   isCxComplete,
   startCx,
+  truncateCx,
   type CxMode,
   type CxState,
 } from './state';

@@ -24,6 +24,8 @@ export type CxState = {
   /** 規定往復数。rule set の cxExchangesPerSection */
   readonly total: number;
   readonly mode: CxMode;
+  /** realtime で持ち時間が尽き、進行中の往復を打ち切った（設計 §7 打ち切り） */
+  readonly truncated: boolean;
 };
 
 /**
@@ -36,12 +38,26 @@ export function startCx(ruleSet: RuleSet, mode: CxMode = 'normal'): CxState {
     turnCursor: 0,
     total: ruleSet.constraints.cxExchangesPerSection,
     mode,
+    truncated: false,
   };
 }
 
-/** 規定往復数に達したか。達していれば ADVANCE を許可してよい（設計 §7） */
+/**
+ * 規定往復数に達したか。達していれば ADVANCE を許可してよい（設計 §7）。
+ * 打ち切られたスロットも完了として扱う。持ち時間が尽きた往復は再開しない。
+ */
 export function isCxComplete(cx: CxState): boolean {
-  return cx.turnCursor >= cx.total;
+  return cx.truncated || cx.turnCursor >= cx.total;
+}
+
+/**
+ * 打ち切り（設計 §7）。
+ * realtime で持ち時間が尽きたとき、進行中の往復を truncated=true で確定してスロットを終える。
+ * cursor は進めない。何往復まで成立したかを残すためである。
+ * manual モードでは打ち切りは起きない。
+ */
+export function truncateCx(cx: CxState): CxState {
+  return { ...cx, truncated: true };
 }
 
 /**

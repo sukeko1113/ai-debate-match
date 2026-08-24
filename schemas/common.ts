@@ -49,6 +49,20 @@ export function seatSide(seat: Seat): Side {
 export const cxPhaseSchema = z.enum(['question', 'answer']);
 export type CxPhase = z.infer<typeof cxPhaseSchema>;
 
+/** CXの質問モード。論点0件のときは固定質問へ切り替える（設計 §7 / §10.1） */
+export const cxModeSchema = z.enum(['normal', 'no_argument']);
+export type CxMode = z.infer<typeof cxModeSchema>;
+
+/** スロット単位の進行状況（設計 付録B progress） */
+export const slotProgressStatusSchema = z.enum([
+  'pending',
+  'active',
+  'done',
+  'failed',
+  'skipped_no_target',
+]);
+export type SlotProgressStatus = z.infer<typeof slotProgressStatusSchema>;
+
 /** 席の担当者種別（設計 付録B） */
 export const occupantTypeSchema = z.enum(['human', 'ai']);
 export type OccupantType = z.infer<typeof occupantTypeSchema>;

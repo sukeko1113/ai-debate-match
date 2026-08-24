@@ -8,6 +8,7 @@ test('OPENAI_API_KEY が無くてもトップ画面が表示される', async ({
   await page.goto('/');
 
   await expect(page.getByRole('heading', { level: 1, name: 'AI英語ディベート練習' })).toBeVisible();
-  await expect(page.getByRole('button', { name: '試合を始める' })).toBeVisible();
+  // P5 で Setup 画面への導線になった（設計 §5.1）
+  await expect(page.getByRole('link', { name: '試合を始める' })).toBeVisible();
   await expect(page.getByText('公式ジャッジではありません')).toBeVisible();
 });

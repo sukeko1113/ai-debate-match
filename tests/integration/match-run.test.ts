@@ -97,6 +97,7 @@ async function createRunner(): Promise<MatchRunner> {
     seats: ALL_SEATS.map((seat) => ({
       seat,
       occupantType: seat === 'A1' ? 'human' : 'ai',
+      displayName: seat === 'A1' ? 'テスト太郎' : `AI ${seat}`,
     })),
     motion: { code: motion.code, textJa: motion.textJa },
   });

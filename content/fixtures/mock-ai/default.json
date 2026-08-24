@@ -115,6 +115,132 @@
           ]
         }
       ]
+    },
+    {
+      "role": "cx_question",
+      "sectionNo": 2,
+      "outputs": [
+        {
+          "question": "学習時間が増えるという第1論点について、増えた時間が学習に使われる根拠はありますか。",
+          "targetArgumentKey": "AD1"
+        },
+        {
+          "question": "その根拠は、部活動をしていない生徒にも当てはまりますか。",
+          "targetArgumentKey": "AD1"
+        },
+        {
+          "question": "第1論点は、地域クラブへ移った生徒にも成り立ちますか。",
+          "targetArgumentKey": "AD1"
+        }
+      ]
+    },
+    {
+      "role": "cx_question",
+      "sectionNo": 4,
+      "outputs": [
+        {
+          "question": "受け皿が足りないという第1論点について、不足はどの地域でも同じですか。",
+          "targetArgumentKey": "DA1"
+        },
+        {
+          "question": "移行の期間を5年と区切っても、その不足は残りますか。",
+          "targetArgumentKey": "DA1"
+        },
+        {
+          "question": "指導者の確保は、制度の設計で改善できませんか。",
+          "targetArgumentKey": "DA1"
+        }
+      ]
+    },
+    {
+      "role": "cx_answer",
+      "sectionNo": 4,
+      "outputs": [
+        {
+          "answer": "地域によって差はありますが、全国の平均で不足しています。よって第1論点は成り立ちます。",
+          "concessionKey": null
+        },
+        {
+          "answer": "残ります。期間を延ばしても指導者の総数は増えないためです。",
+          "concessionKey": null
+        },
+        {
+          "answer": "制度の設計で一部は改善しますが、総数の不足は残ります。この点は認めます。",
+          "concessionKey": "DA1"
+        }
+      ]
+    },
+    {
+      "role": "cx_question",
+      "sectionNo": 6,
+      "outputs": [
+        {
+          "question": "先ほどの反論は、否定側の第1論点とどう結びつきますか。",
+          "targetArgumentKey": "DA1"
+        },
+        {
+          "question": "その結びつきは、資料で裏づけられていますか。",
+          "targetArgumentKey": "DA1"
+        },
+        {
+          "question": "反論が成り立たない場合、第1論点は残りますか。",
+          "targetArgumentKey": "DA1"
+        }
+      ]
+    },
+    {
+      "role": "cx_answer",
+      "sectionNo": 6,
+      "outputs": [
+        {
+          "answer": "受け皿の不足が続くという点で結びついています。結論として反論は成り立ちます。",
+          "concessionKey": null
+        },
+        {
+          "answer": "提出した資料の範囲で裏づけています。追加の資料は用意していません。",
+          "concessionKey": null
+        },
+        {
+          "answer": "反論が成り立たない場合でも、第1論点そのものは残ります。",
+          "concessionKey": null
+        }
+      ]
+    },
+    {
+      "role": "cx_question",
+      "sectionNo": 8,
+      "outputs": [
+        {
+          "question": "先ほどの反論は、肯定側の第1論点を守るものですか。",
+          "targetArgumentKey": "AD1"
+        },
+        {
+          "question": "移行期間の設定は、誰が決めると想定していますか。",
+          "targetArgumentKey": "AD1"
+        },
+        {
+          "question": "期間内に受け皿が整わなかった場合はどうなりますか。",
+          "targetArgumentKey": "AD1"
+        }
+      ]
+    },
+    {
+      "role": "cx_answer",
+      "sectionNo": 8,
+      "outputs": [
+        {
+          "answer": "はい。第1論点を守るための反論です。結論として肯定側の立場は変わりません。",
+          "concessionKey": null
+        },
+        {
+          "answer": "制度の導入主体である国が決めると想定しています。",
+          "concessionKey": null
+        },
+        {
+          "answer": "整わない場合は移行を延ばす設計が必要です。その限りで課題は残ります。",
+          "concessionKey": "AD1"
+        }
+      ]
     }
   ]
 }

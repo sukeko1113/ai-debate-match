@@ -1,6 +1,6 @@
 # P7: CX engine（質疑の往復・人間の回答・打ち切り）
 
-> **担当ブランチ**: （着手時に記入）
+> **担当ブランチ**: `claude/p7-cx-engine`
 > 着手時にこの欄へ自分のブランチ名を書いてコミットする。既に埋まっていれば、
 > 別のセッションが着手済みである（CLAUDE.md「着手前の確認」）。
 
@@ -57,8 +57,14 @@ CX は1スロットの中で質問と回答が交互に起きる。ここまで�
 
 ### 4. concession の記録（設計 §15.3 / §13）
 
-- CX answer の `concessionKey` を `cx_turns.target_argument_key` に入れる
+- CX answer の `concessionKey` を `cx_turns` に記録する
 - Attack の入力に `cxConcessions` として渡す（設計 §15.3 Attack の入力列）。P6 で作った入力組み立てに足す
+
+**列の扱い（実装時の判断）。** 設計 §13 の `cx_turns` には `target_argument_key` が1列しか無いが、
+質問の対象（質問側が突く論点）と回答の譲歩（回答側が認めた論点）は**別の事実**である。
+同じ列に入れると、質問の対象が回答で上書きされ、Attack の入力に渡す `cxConcessions` を
+質問の対象と区別できなくなる。そこで `concession_argument_key` を別の列として足した。
+`target_argument_key` は質問の対象のままとする。
 
 ### 5. 打ち切り（設計 §7）
 
@@ -101,7 +107,7 @@ E2Eの12シナリオと10回完走（P11）。実時間のカウントダウン�
 7. 1CXスロットの `cx_turns` は規定往復数の行だけである（質問と回答は同じ行）
 8. advance 1回で `cx_turns` の変化は1件、`ai_runs` も1件だけ増える（設計 §14.1）
 9. `ai_runs.cx_turn_index` が入り、同じ往復・同じ role・同じ attempt が二重に作られない
-10. `concessionKey` が `cx_turns.target_argument_key` に入り、Attack の入力に渡る
+10. `concessionKey` が `cx_turns.concession_argument_key` に入り、Attack の入力に渡る（上記 §4 の判断）
 11. **通常系（両側に論点がある）で17スロットを完走し、`completed` に到達する**（integration）
 12. 往復数を rule set から読んでいる（`3` をコードに書かない）
 13. `HUMAN_TIMEOUT` を受けた往復が `truncated=true` で残り、スロットが完了する

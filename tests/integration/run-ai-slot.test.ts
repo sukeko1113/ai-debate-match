@@ -13,7 +13,7 @@ import type { MatchState } from '@/domain/match';
 import type { ArgumentRecord, EvidenceCardRecord, MatchRepository } from '@/domain/repositories';
 import { createMockDebateProvider } from '@/infrastructure/ai/mock-provider';
 import { createMemoryMatchRepository } from '@/infrastructure/repositories/memory';
-import type { MockAiResponse } from '@/schemas/ai-output';
+import type { MockAiResponseInput } from '@/schemas/ai-output';
 import type { Persona } from '@/schemas/persona';
 
 import { bothSidesArguments, driveToSlot, fixtureRuleSet } from '../support/match-fixtures';
@@ -123,7 +123,7 @@ type Scene = {
 /** 指定セクションのスロット先頭（status=active）まで進め、論点と Evidence を保存しておく */
 async function sceneAt(
   sectionNo: number,
-  responses: readonly MockAiResponse[],
+  responses: readonly MockAiResponseInput[],
   limits: AiLimits = LIMITS,
 ): Promise<Scene> {
   const repository = createMemoryMatchRepository();
@@ -480,7 +480,8 @@ describe('参照の再確認は schema と別に持つ（設計 §15.6）', () =
     ],
     cards: [],
     speeches: [],
-    argumentLimits: null,
+    cxTurns: [],
+    persona: PERSONA,
   });
 
   it('入力に無いkeyを見つける', () => {

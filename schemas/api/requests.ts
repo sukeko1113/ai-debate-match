@@ -63,6 +63,28 @@ export const createEvidenceCardRequestSchema = z.strictObject({
 
 export type CreateEvidenceCardRequest = z.infer<typeof createEvidenceCardRequestSchema>;
 
+/** 設計 §19 入力上限。CX回答 800字 */
+export const MAX_CX_ANSWER_LENGTH = 800;
+
+/**
+ * POST /api/matches/:id/cx-answer（設計 §14.3 / §7）。
+ * `cxTurnIndex` は照合のためだけに受け取る。進める位置はサーバが決める。
+ */
+export const cxAnswerRequestSchema = z.strictObject({
+  expectedVersion: z.number().int().min(0),
+  slotIndex: z.number().int().min(0),
+  cxTurnIndex: z.number().int().min(0),
+  text: z
+    .string()
+    .min(1, { error: '回答は必須である' })
+    .max(MAX_CX_ANSWER_LENGTH, {
+      error: `回答は${MAX_CX_ANSWER_LENGTH}字以内である（設計 §19）`,
+    }),
+  evidenceCardIds: z.array(z.string().min(1)).default([]),
+});
+
+export type CxAnswerRequest = z.infer<typeof cxAnswerRequestSchema>;
+
 /** 応答に載せる Evidence カード（設計 §14.3 の 201 EvidenceCard） */
 export const evidenceCardViewSchema = z.strictObject({
   id: z.string().min(1),

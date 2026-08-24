@@ -60,6 +60,7 @@ function cxTurn(overrides: Partial<CxTurnRecord> = {}): CxTurnRecord {
     questionText: 'ダミー質問',
     answerText: null,
     targetArgumentKey: 'AD1',
+    concessionArgumentKey: null,
     truncated: false,
     ...overrides,
   };

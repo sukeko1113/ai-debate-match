@@ -74,8 +74,16 @@ export type CxTurnRecord = {
   readonly questionText: string;
   /** 回答の確定前は null（設計 §7） */
   readonly answerText: string | null;
-  /** 論点0件のCXでは null を許可する（設計 §10） */
+  /** 質問が対象にした論点。論点0件のCXでは null（設計 §10 / §15.3） */
   readonly targetArgumentKey: string | null;
+  /**
+   * 回答で認めた論点（設計 §15.3 CX answer の concessionKey）。
+   *
+   * 設計 §13 の cx_turns には列が1つ（target_argument_key）しか無いが、
+   * 質問の対象と回答の譲歩は別の事実である。1列に混ぜると、Attack の入力
+   * （設計 §15.3 の cxConcessions）で「質問対象か譲歩か」を区別できない。
+   */
+  readonly concessionArgumentKey: string | null;
   /** 持ち時間切れで打ち切った往復（設計 §7） */
   readonly truncated: boolean;
 };

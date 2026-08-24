@@ -193,7 +193,7 @@ describe('進行（設計 §11 / §14.1）', () => {
     expect(advanced.data.version).toBe(started.data.version + 1);
   });
 
-  it('AIが担当するスロットでは状態を変えずに返す（AIは後続PR）', async () => {
+  it('立論のあとは質疑に入り、人間の回答を待つ（設計 §7）', async () => {
     const waiting = await driveToConstructive();
     const submitted = await envelopeOf<MatchSnapshot>(
       await constructiveRoute(jsonRequest(constructiveBody(waiting)), context(waiting.id)),
@@ -202,25 +202,27 @@ describe('進行（設計 §11 / §14.1）', () => {
 
     // client は snapshot の currentAction に従って進める（設計 §14.1）
     let snapshot = submitted.data;
-    for (let step = 0; step < 6; step += 1) {
-      const useSkipPrep = snapshot.currentAction === 'skip_prep';
-      const route = useSkipPrep ? skipPrepRoute : advanceRoute;
+    for (let step = 0; step < 8; step += 1) {
+      if (snapshot.currentAction === 'input_answer') break;
+
+      const route = snapshot.currentAction === 'skip_prep' ? skipPrepRoute : advanceRoute;
       const response = await route(
         jsonRequest({ expectedVersion: snapshot.version }),
         context(waiting.id),
       );
       const body = await envelopeOf<MatchSnapshot>(response);
-      if (!body.ok) {
-        // 第2セクションはAIの質問。ここで止まるのが P5 の想定である
-        expect(response.status).toBe(503);
-        expect(body.error.code).toBe('AI_PROVIDER_UNAVAILABLE');
-        const stored = await getMatchRepository().findMatch(waiting.id);
-        expect(stored?.version).toBe(snapshot.version);
-        return;
-      }
+      if (!body.ok) throw new Error(`進行が止まった: ${body.error.code} ${body.error.message}`);
       snapshot = body.data;
     }
-    throw new Error('AI のスロットに到達しなかった');
+
+    // 第2セクションはAIが質問し、人間（A1）が答える
+    expect(snapshot.currentAction).toBe('input_answer');
+    expect(snapshot.currentSlot?.kind).toBe('cx');
+    expect(snapshot.cx).toMatchObject({ phase: 'answer', turnCursor: 0 });
+
+    const turns = await getMatchRepository().listCxTurns(waiting.id);
+    expect(turns).toHaveLength(1);
+    expect(turns[0]?.answerText).toBeNull();
   });
 
   it('古い expectedVersion の start は 409', async () => {

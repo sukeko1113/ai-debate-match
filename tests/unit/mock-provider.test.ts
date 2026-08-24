@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 import { createMockDebateProvider } from '@/infrastructure/ai/mock-provider';
 import { isAiProviderError, PROMPT_VERSION } from '@/infrastructure/ai/provider';
-import { parseMockAiFixture, type MockAiFixture } from '@/schemas/ai-output';
+import { parseMockAiFixture, type MockAiFixtureInput } from '@/schemas/ai-output';
 
 /**
  * Mock Provider（設計 §15.7）。
@@ -21,7 +21,7 @@ const attackSchema = z.strictObject({
   refutations: z.array(z.strictObject({ argumentKey: z.enum(['AD1']), point: z.string().min(1) })),
 });
 
-function fixtureOf(outputs: readonly unknown[]): MockAiFixture {
+function fixtureOf(outputs: readonly unknown[]): MockAiFixtureInput {
   return { code: 'test', responses: [{ role: 'attack', sectionNo: 5, outputs: [...outputs] }] };
 }
 
@@ -127,9 +127,29 @@ describe('同梱の fixture（content/fixtures/mock-ai/default.json）', () => {
   );
 
   it('検証を通り、AIが担当する競技セクションを網羅している', () => {
-    const covered = fixture.responses.map((response) => response.sectionNo).sort((a, b) => a - b);
-    // 第2・4・6・8セクションはCX（P7）。それ以外のAIスピーチをすべて持つ
-    expect(covered).toEqual([3, 5, 7, 9, 10, 11, 12]);
+    const speechSections = fixture.responses
+      .filter((response) => !response.role.startsWith('cx_'))
+      .map((response) => response.sectionNo)
+      .sort((left, right) => left - right);
+    expect(speechSections).toEqual([3, 5, 7, 9, 10, 11, 12]);
+
+    // 質疑は第2・4・6・8セクション。第2セクションの回答は人間なので質問だけを持つ
+    const questions = fixture.responses
+      .filter((response) => response.role === 'cx_question')
+      .map((response) => response.sectionNo)
+      .sort((left, right) => left - right);
+    const answers = fixture.responses
+      .filter((response) => response.role === 'cx_answer')
+      .map((response) => response.sectionNo)
+      .sort((left, right) => left - right);
+    expect(questions).toEqual([2, 4, 6, 8]);
+    expect(answers).toEqual([4, 6, 8]);
+  });
+
+  it('質疑の出力は往復数ぶん用意されている（設計 §7）', () => {
+    for (const response of fixture.responses.filter((entry) => entry.role.startsWith('cx_'))) {
+      expect(response.outputs.length).toBe(3);
+    }
   });
 
   it('立論の fixture は key も kind も返さない（採番はサーバ・設計 §8.2）', () => {

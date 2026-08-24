@@ -7,6 +7,7 @@ import {
   fillConstructive,
   humanInput,
   sectionText,
+  snapshotOf,
   stepOnce,
   stepUntil,
   submitConstructive,
@@ -114,16 +115,36 @@ test.describe('E02 再読込', () => {
 });
 
 test.describe('E03 二重送信', () => {
-  test('E03: 立論の提出を2回続けて押しても、speech は1件だけである', async ({ page }) => {
+  test('E03: 立論を二重に送っても speech は1件で、2通目は 409 になる', async ({ page }) => {
     const matchUrl = await driveToConstructiveForm(page);
+    const matchId = matchUrl.split('/matches/')[1] ?? '';
+
+    // 送信前の version を控える。二重送信は「同じ version で2通」である（設計 §11）
+    const before = await snapshotOf(page.request, matchUrl);
+    const slotIndex = (before.currentSlot as { index: number }).index;
+
     await fillConstructive(page);
-
-    const submit = page.getByRole('button', { name: '立論を提出する' });
-
-    // 2回押す。2回目は送信中で無効か、サーバが expectedVersion で弾く（設計 §11）
-    await submit.click();
-    await submit.click({ force: true, noWaitAfter: true }).catch(() => undefined);
+    await page.getByRole('button', { name: '立論を提出する' }).click();
     await expect(page.getByRole('heading', { name: '提出済みの本文' })).toBeVisible();
+    // 確定した出力は編集できない。画面からは2通目を送れない（設計 §18.1）
+    await expect(page.getByRole('button', { name: '立論を提出する' })).toHaveCount(0);
+
+    // 同じ version の2通目を API へ送る（送信中の二重クリックと同じ状況）
+    const second = await page.request.post(`/api/matches/${matchId}/constructive`, {
+      data: {
+        expectedVersion: before.version,
+        slotIndex,
+        plan: humanInput.constructive.plan,
+        arguments: humanInput.constructive.arguments.map((argument) => ({
+          label: argument.label,
+          body: argument.body,
+          evidenceCardIds: [],
+        })),
+      },
+    });
+    expect(second.status()).toBe(409);
+    const body = (await second.json()) as { error: { code: string } };
+    expect(body.error.code).toBe('MATCH_VERSION_CONFLICT');
 
     const exported = (await exportOf(page.request, matchUrl)) as {
       speeches: ReadonlyArray<{ sectionNo: number }>;

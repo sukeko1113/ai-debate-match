@@ -122,10 +122,17 @@ export default async function MatchRoomPage({
           </dl>
         )}
         {snapshot.cx !== null && (
-          <p>
-            質疑 {snapshot.cx.turnCursor + 1}/{snapshot.cx.total}（
-            {snapshot.cx.phase === 'question' ? '質問' : '回答'}）
-          </p>
+          <>
+            <p>
+              質疑 {snapshot.cx.turnCursor + 1}/{snapshot.cx.total}（
+              {snapshot.cx.phase === 'question' ? '質問' : '回答'}）
+            </p>
+            {snapshot.cx.mode === 'no_argument' && (
+              <p className="hint">
+                立論が提出されていないため、質問は論題にあらかじめ用意されたものです（設計 §10.1）。
+              </p>
+            )}
+          </>
         )}
       </section>
 
@@ -145,8 +152,14 @@ export default async function MatchRoomPage({
 
       {currentSpeech !== undefined && (
         <section aria-labelledby="saved-speech-heading">
-          <h2 id="saved-speech-heading">提出済みの本文</h2>
-          <p className="hint">確定した出力は編集できません（設計 §18.1）。</p>
+          <h2 id="saved-speech-heading">
+            {currentSpeech.autoFilled ? '自動で補われた本文' : '提出済みの本文'}
+          </h2>
+          <p className="hint">
+            {currentSpeech.autoFilled
+              ? '対象となる論点が無いため、AIを呼ばずに定型文で埋めました（設計 §10）。'
+              : '確定した出力は編集できません（設計 §18.1）。'}
+          </p>
           <pre className="speech-text">{currentSpeech.text}</pre>
         </section>
       )}

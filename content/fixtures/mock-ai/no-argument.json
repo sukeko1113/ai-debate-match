@@ -1,0 +1,191 @@
+{
+  "code": "mock_no_argument_ja",
+  "responses": [
+    {
+      "role": "constructive",
+      "sectionNo": 3,
+      "outputs": [
+        {
+          "plan": null,
+          "arguments": [
+            {
+              "label": "地域の受け皿が足りない",
+              "body": "地域クラブの数と指導者は不足しています。全面移行すれば、活動を続けられない生徒が出ます。したがって現行制度を維持すべきです。",
+              "evidenceCardIds": []
+            },
+            {
+              "label": "家計の負担が増える",
+              "body": "地域クラブは会費が必要です。学校の部活動より費用が上がり、参加できない生徒が生まれます。よって全面移行は望ましくありません。",
+              "evidenceCardIds": []
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "role": "cx_question",
+      "sectionNo": 4,
+      "outputs": [
+        {
+          "question": "受け皿が足りないという第1論点について、不足はどの地域でも同じですか。",
+          "targetArgumentKey": "DA1"
+        },
+        {
+          "question": "移行の期間を区切っても、その不足は残りますか。",
+          "targetArgumentKey": "DA1"
+        },
+        {
+          "question": "家計の負担は、公的な補助では下げられませんか。",
+          "targetArgumentKey": "DA2"
+        }
+      ]
+    },
+    {
+      "role": "cx_answer",
+      "sectionNo": 4,
+      "outputs": [
+        {
+          "answer": "地域によって差はありますが、全国の平均で不足しています。よって第1論点は成り立ちます。",
+          "concessionKey": null
+        },
+        {
+          "answer": "残ります。期間を延ばしても指導者の総数は増えないためです。",
+          "concessionKey": null
+        },
+        {
+          "answer": "補助があれば一部は下がります。その限りで負担の程度は変わります。",
+          "concessionKey": "DA2"
+        }
+      ]
+    },
+
+    {
+      "role": "cx_question",
+      "sectionNo": 6,
+      "outputs": [
+        {
+          "question": "先ほどの時間について、否定側の第1論点は変わらず残りますか。",
+          "targetArgumentKey": "DA1"
+        },
+        {
+          "question": "その主張は、資料で裏づけられていますか。",
+          "targetArgumentKey": "DA1"
+        },
+        {
+          "question": "家計の負担は、第1論点とは別に成り立ちますか。",
+          "targetArgumentKey": "DA2"
+        }
+      ]
+    },
+    {
+      "role": "cx_answer",
+      "sectionNo": 6,
+      "outputs": [
+        {
+          "answer": "残ります。反論が提出されていない以上、第1論点はそのまま立っています。",
+          "concessionKey": null
+        },
+        {
+          "answer": "提出した資料の範囲で裏づけています。追加の資料は用意していません。",
+          "concessionKey": null
+        },
+        {
+          "answer": "別に成り立ちます。費用の問題は受け皿の数とは独立しています。",
+          "concessionKey": null
+        }
+      ]
+    },
+
+    {
+      "role": "attack",
+      "sectionNo": 7,
+      "outputs": [
+        {
+          "speechText": "否定側の第1論点に反論します。受け皿の不足は移行の期間を区切ることで解消できます。",
+          "refutations": [
+            {
+              "argumentKey": "DA1",
+              "point": "受け皿が足りないのは移行初期だけであり、期間を区切れば解消できます。"
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "role": "cx_question",
+      "sectionNo": 8,
+      "outputs": [
+        {
+          "question": "いまの反論は、肯定側のどの立論を守るものですか。立論は提出されていますか。",
+          "targetArgumentKey": null
+        },
+        {
+          "question": "移行の期間は誰が決めると想定していますか。",
+          "targetArgumentKey": null
+        },
+        {
+          "question": "期間内に受け皿が整わなかった場合はどうなりますか。",
+          "targetArgumentKey": null
+        }
+      ]
+    },
+    {
+      "role": "cx_answer",
+      "sectionNo": 8,
+      "outputs": [
+        {
+          "answer": "立論は提出できていません。いまの反論は否定側の主張に対するものです。",
+          "concessionKey": null
+        },
+        {
+          "answer": "制度の導入主体である国が決めると想定しています。",
+          "concessionKey": null
+        },
+        {
+          "answer": "整わない場合は移行を延ばす設計が必要です。その限りで課題は残ります。",
+          "concessionKey": null
+        }
+      ]
+    },
+
+    {
+      "role": "defense",
+      "sectionNo": 10,
+      "outputs": [
+        {
+          "speechText": "第1論点を再構築します。期間を区切っても、指導者の総数が足りない事実は変わりません。",
+          "defenses": [
+            {
+              "argumentKey": "DA1",
+              "point": "期間を区切っても指導者の総数は増えず、受け皿の不足は残ります。"
+            }
+          ],
+          "evidenceUses": []
+        }
+      ]
+    },
+
+    {
+      "role": "summary",
+      "sectionNo": 11,
+      "outputs": [
+        {
+          "speechText": "肯定側は立論を提出できませんでした。有効な立論が無いため、比較できる争点はありません。この点は認めます。",
+          "comparisons": []
+        }
+      ]
+    },
+    {
+      "role": "summary",
+      "sectionNo": 12,
+      "outputs": [
+        {
+          "speechText": "本日の争点は受け皿と費用です。肯定側に有効な立論が無く、制度を変える理由が示されていません。",
+          "comparisons": []
+        }
+      ]
+    }
+  ]
+}

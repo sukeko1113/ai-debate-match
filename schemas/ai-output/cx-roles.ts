@@ -18,21 +18,31 @@ const QUESTION_MARK_ENDING = /[?？][\s]*$/;
 
 export type CxQuestionOutput = {
   readonly question: string;
-  readonly targetArgumentKey: string;
+  /** 対象の論点。回答席の陣営に論点が1件も無いときは null（設計 §10） */
+  readonly targetArgumentKey: string | null;
 };
 
 /**
  * 質問（設計 §15.3）。
  * 対象keyは入力で渡した集合の部分集合でなければならない（設計 §15.6）。
+ *
+ * 集合が空になるのは、回答席の陣営が論点を1件も出していないときである。
+ * 設計 §10 は `targetArgumentKey=null` を許可しており、そのときは **null しか許さない**。
+ * 質問の対象は論点ではなく、直前のスピーチそのものになる。
  */
 export function buildCxQuestionOutputSchema(
   targetKeys: readonly string[],
 ): z.ZodType<CxQuestionOutput> {
+  const targetArgumentKey =
+    targetKeys.length === 0
+      ? z.null({ error: '参照できる論点が無いので対象は null である（設計 §10）' })
+      : referenceEnum(targetKeys, 'targetArgumentKey');
+
   return z.strictObject({
     // 疑問符で終わることは求めない。日本語の質問は「〜ますか。」の形を取る。
     // 設計 §15.5 が挙げているのは「CX answer が疑問符で終わる」＝逆質問の側だけである。
     question: z.string().min(1, { error: 'question は必須である（設計 §15.3）' }),
-    targetArgumentKey: referenceEnum(targetKeys, 'targetArgumentKey'),
+    targetArgumentKey,
   }) as unknown as z.ZodType<CxQuestionOutput>;
 }
 

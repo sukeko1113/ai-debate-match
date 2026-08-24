@@ -1,3 +1,9 @@
+export {
+  askFixedCxQuestion,
+  type AskFixedCxQuestionDeps,
+  type AskFixedCxQuestionParams,
+  type AskFixedCxQuestionResult,
+} from './ask-fixed-cx-question';
 export { buildCxTurnInput, type CxTurnInput } from './cx-turn-input';
 export {
   retryCxTurn,

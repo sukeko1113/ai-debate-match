@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { advanceMatch } from '@/application/advance-match';
+import { advanceMatch, type AdvanceMatchDeps } from '@/application/advance-match';
 import { retryCxTurn, runCxTurn, submitCxAnswer } from '@/application/run-cx-turn';
-import type { AiLimits, RunAiSlotDeps } from '@/application/run-slot';
+import type { AiLimits } from '@/application/run-slot';
 import { reduce, type MatchState } from '@/domain/match';
 import type { ArgumentRecord, EvidenceCardRecord, MatchRepository } from '@/domain/repositories';
 import { createMockDebateProvider } from '@/infrastructure/ai/mock-provider';
@@ -11,6 +11,9 @@ import type { MockAiResponseInput } from '@/schemas/ai-output';
 import type { Persona } from '@/schemas/persona';
 
 import { bothSidesArguments, driveToSlot, fixtureRuleSet } from '../support/match-fixtures';
+
+/** 論点0件のCXで使う固定質問（設計 §10.1）。AIには作らせない */
+const FIXED_CX_QUESTIONS = ['固定質問1。', '固定質問2。', '固定質問3。'];
 
 /**
  * 質疑の往復（設計 §7 / §15.3）。
@@ -90,10 +93,11 @@ async function seedMatch(sectionNo: number, responses: readonly MockAiResponseIn
   await repository.insertEvidenceCard(card);
 
   let sequence = 0;
-  const deps: RunAiSlotDeps = {
+  const deps: AdvanceMatchDeps = {
     repository,
     provider: createMockDebateProvider({ code: 'test', responses: [...responses] }),
     personaFor: () => PERSONA,
+    noArgumentCxQuestionsFor: () => FIXED_CX_QUESTIONS,
     limits: LIMITS,
     newId: (prefix) => {
       sequence += 1;

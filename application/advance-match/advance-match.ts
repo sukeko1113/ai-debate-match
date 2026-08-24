@@ -1,4 +1,5 @@
-import { runCxTurn } from '@/application/run-cx-turn';
+import { autoFillSlot } from '@/application/auto-fill';
+import { askFixedCxQuestion, runCxTurn } from '@/application/run-cx-turn';
 import { runAiSlot, type RunAiSlotDeps } from '@/application/run-slot';
 import { argumentInventoryOf } from '@/domain/arguments';
 import { decideSlotAction } from '@/domain/fallback';
@@ -19,10 +20,14 @@ import type { ApiErrorCode } from '@/schemas/api';
  * 進めない（設計 §14.1）。ジョブキューは使わず、同期で返す。
  *
  * 担当席がAIのスロットは `run-slot` へ渡す。生成・検証・再試行はそちらの責務である
- * （設計 §15）。固定文（`auto_fill` / `cx_no_argument`）は P8 で入る。
+ * （設計 §15）。対象の論点が0件のスロットはAIを呼ばず、固定文と固定質問で進める
+ * （設計 §10 / §10.1）。
  */
 
-export type AdvanceMatchDeps = RunAiSlotDeps;
+export type AdvanceMatchDeps = RunAiSlotDeps & {
+  /** 論点0件のCXで使う固定質問（設計 §10.1）。AIには作らせない */
+  readonly noArgumentCxQuestionsFor: (motionCode: string) => readonly string[];
+};
 
 export type AdvanceMatchParams = {
   readonly matchId: string;
@@ -115,12 +120,11 @@ export async function advanceMatch(
       : runAiSlot(deps, { matchId: params.matchId, expectedVersion });
   }
 
-  // auto_fill / cx_no_argument の固定文は P8 で入る（設計 §10）
-  return fail(
-    'AI_PROVIDER_UNAVAILABLE',
-    '論点0件のときの固定文と固定質問は、後続のPRで追加される（設計 §10）。',
-    { slotIndex: slot.index, slotKey: slot.key, decision: action },
-  );
+  // ここから先はAIを呼ばない。対象が無いときに生成させない（設計 §10.2）
+  if (action === 'cx_no_argument') {
+    return askFixedCxQuestion(deps, { matchId: params.matchId, expectedVersion });
+  }
+  return autoFillSlot(deps, { matchId: params.matchId, expectedVersion });
 }
 
 /** 準備スロットを終える（設計 §14.3 skip-prep / §11 SKIP_PREP） */

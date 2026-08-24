@@ -1,6 +1,6 @@
 # P10: OpenAI text adapter（実Provider・usage・timeout・起動安全性）
 
-> **担当ブランチ**: （未着手）
+> **担当ブランチ**: `claude/p10-openai-text-adapter`
 > 着手時にこの欄へ自分のブランチ名を書いてコミットする。既に埋まっていれば、
 > 別のセッションが着手済みである（CLAUDE.md「着手前の確認」）。
 

@@ -37,6 +37,12 @@ const envSchema = z.object({
   OPENAI_API_KEY: z.string().default(''),
   OPENAI_TEXT_MODEL: z.string().default(''),
   PERSISTENCE_PROVIDER: z.enum(['memory', 'postgres']).default('memory'),
+  /**
+   * Postgres の接続文字列（ADR 0001）。設計 §22 の表には無い。
+   * `PERSISTENCE_PROVIDER=postgres` のときだけ使う。名前は Supabase と各種ホストの慣習に合わせる。
+   * **値はログにもレスポンスにも出さない**（設計 §19）。
+   */
+  DATABASE_URL: z.string().default(''),
   CLOCK_MODE: z.enum(['realtime', 'manual']).default('realtime'),
   CX_EXCHANGES_PER_SECTION: intFromString(3),
   AI_RUN_TIMEOUT_MS: intFromString(30000),

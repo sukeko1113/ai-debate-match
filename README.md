@@ -123,7 +123,7 @@ pnpm build && pnpm start
 > `PERSISTENCE_PROVIDER=memory` のあいだ、試合データはサーバのプロセス内にだけ存在します。
 > **サーバを再起動すると、作成した試合は消えます。** ブラウザを再読込しても消えません
 > （再読込は同じスロット・同じ保存済み内容へ戻ります）。
-> 永続化が必要になったら Postgres adapter を足します（`docs/ADR/0001-persistence-supabase-postgres.md`）。
+> 再起動をまたいで残したいときは、下の Postgres を使ってください。
 
 試合の作成から判定まで一通り動きます。第12セクションまで進むと Result 画面で
 暫定判定（85点）と学習者レポート（65点）を根拠つきで読め、JSONで書き出せます。
@@ -132,10 +132,53 @@ pnpm build && pnpm start
 フローシートの『状態』は、いまはすべて『提出済み』です。`attacked` / `dropped` などの
 遷移条件が設計に定義されていないためです（`docs/DONE_CHECKLIST.md` に理由を書いています）。
 
+### 永続化する（Postgres・任意）
+
+既定は memory のままです。授業や実証のように**再起動をまたいで試合を残したい**ときだけ
+Postgres に切り替えます（`docs/ADR/0001-persistence-supabase-postgres.md`）。
+
+```bash
+# 1. スキーマを作る（設計 §13 の13テーブル）
+psql "$DATABASE_URL" -f supabase/migrations/0001_init.sql
+
+# 2. .env.local に2つ書く
+#    PERSISTENCE_PROVIDER=postgres
+#    DATABASE_URL=postgresql://user:password@host:5432/dbname
+
+pnpm build && pnpm start
+```
+
+| 変数 | 意味 |
+| --- | --- |
+| `PERSISTENCE_PROVIDER` | `memory`（既定）/ `postgres` |
+| `DATABASE_URL` | 接続文字列。`postgres` のときだけ使う |
+
+`DATABASE_URL` という名前は、Postgres の慣例（`psql` / `pg` / Supabase / Vercel が
+そのまま読む名前）に合わせています。設計 §22 の表には接続情報の変数がないため、P12 で決めました。
+
+- **`PERSISTENCE_PROVIDER=postgres` なのに `DATABASE_URL` が空なら、起動時に失敗します。**
+  黙って memory へ戻りません（`AI_PROVIDER=openai` と同じ扱い）。
+- 接続文字列はログ・レスポンス・エラーメッセージに出しません（設計 §19）。
+- **既存の migration は書き換えません。** 直しが要るときは新しいファイルを足します。
+- Phase 1 では RLS を入れていません。ログイン・学校テナント・保護者同意と一緒に
+  Phase 2 の別 ADR で設計します（設計 §13.1）。**そのため Postgres は実データで使わないでください。**
+
 ## データの削除とログ（設計 §19）
 
 - **試合データはサーバのプロセス内メモリにあります**（`PERSISTENCE_PROVIDER=memory`）。
-  サーバを止めれば消えます。個別の削除口はまだありません（demo reset は Postgres adapter と一緒に入れます）。
+  サーバを止めれば消えます。別プロセスから消す口はありません（プロセス内にしか無いためです）。
+- `PERSISTENCE_PROVIDER=postgres` のときは、試合ごとに消せます。
+
+  ```bash
+  pnpm demo:reset <matchId>
+  ```
+
+  `matches` の1行を消すと、配下（`speeches` / `cx_turns` / `arguments` / `evidence_cards` /
+  `evidence_uses` / `ai_runs` / `judging_runs` / `audit_logs` / `match_slots` / `match_seats`）が
+  **1トランザクションで**すべて落ちます。**HTTP の削除口はありません**（設計 §14.3 の表に delete が無いため）。
+  消えないのは `motions` と `rule_sets` です。これは `content/` の写しであり、試合のデータではありません。
+- **DBから消しても、外部へ送信済みのログは消えません。**
+  `AI_PROVIDER=openai` で実行した分は OpenAI 側に残り、`pnpm demo:reset` では消せません。
 - 保存するのは `prompt_version` / `input_hash` / `usage` / `error_code` です。**prompt 全文は保存しません。**
 - `GET /api/matches/:id/export` の JSON に鍵も prompt も含めません。
 - **`AI_PROVIDER=openai` で実行した場合、送った内容は OpenAI 側のログに残ります。**
